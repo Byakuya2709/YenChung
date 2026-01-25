@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useOrder } from '@/composables/useOrder'
 import { useCartStore } from '@/stores/cart'
 import { useProductPrice } from '@/composables/useProductPrice'
-import { mockProduct } from '@/mock/products'
-import type { Product } from '@/types/product'
+import { allProducts } from '@/mock/products'
+import type { Product, CustomProduct } from '@/types/product'
 
 import QuantityCounter from '@/components/common/QuantityCounter.vue'
 import PrimaryButton from '@/components/common/PrimaryButton.vue'
@@ -21,26 +21,57 @@ const cartStore = useCartStore()
 const { createDirectOrder } = useOrder()
 
 // State
-const product = ref<Product>(mockProduct)
+const product = ref<Product | null>(null)
 const quantity = ref(1)
-const selectedType = ref(product.value.types[0]?.id || '')
-const selectedWeight = ref(product.value.types[0]?.weightOptions[0]?.id || '')
-const selectedVolume = ref(product.value.volumeOptions?.[0] || '')
+
+// States chỉ dùng cho custom product
+const selectedType = ref('')
+const selectedWeight = ref('')
+const selectedVolume = ref('')
 const selectedPackage = ref<number | null>(null)
+
+// Kiểm tra xem có phải custom product không
+const isCustomProduct = computed(() => product.value?.category === 'custom')
+const customProduct = computed(() =>
+  isCustomProduct.value ? (product.value as CustomProduct) : null,
+)
+
+// Load sản phẩm từ route params
+onMounted(() => {
+  const productId = route.params.id as string
+  const foundProduct = allProducts.find((p) => p.id === productId)
+
+  if (foundProduct) {
+    product.value = foundProduct
+
+    // Nếu là custom product, khởi tạo các giá trị mặc định
+    if (foundProduct.category === 'custom') {
+      const custom = foundProduct as CustomProduct
+      selectedType.value = custom.types[0]?.id || ''
+      selectedWeight.value = custom.types[0]?.weightOptions[0]?.id || ''
+      selectedVolume.value = custom.volumeOptions?.[0] || ''
+    }
+  } else {
+    // Redirect về home nếu không tìm thấy
+    router.push('/')
+  }
+})
 
 // Tính số lượng layer hiển thị (tối đa 5 layer để tránh quá tải UI)
 const displayLayers = computed(() => Math.min(quantity.value, 5))
 const hasMoreLayers = computed(() => quantity.value > 3)
 
-// Lấy weightOptions của type hiện tại
+// Lấy weightOptions của type hiện tại (chỉ cho custom)
 const currentWeightOptions = computed(() => {
-  const type = product.value.types.find((t) => t.id === selectedType.value)
+  if (!customProduct.value) return []
+  const type = customProduct.value.types.find((t) => t.id === selectedType.value)
   return type?.weightOptions || []
 })
 
-// Khi đổi type, tự động chọn weight đầu tiên
+// Khi đổi type, tự động chọn weight đầu tiên (chỉ cho custom)
 watch(selectedType, (newType) => {
-  const type = product.value.types.find((t) => t.id === newType)
+  if (!customProduct.value) return
+  const type = customProduct.value.types.find((t) => t.id === newType)
   if (type && type.weightOptions.length > 0) {
     selectedWeight.value = type.weightOptions[0].id
   }
@@ -56,8 +87,18 @@ const { unitPrice, totalPrice, formattedPrice } = useProductPrice(
 
 // Thêm vào giỏ hàng
 function addToCart() {
-  const type = product.value.types.find((t) => t.id === selectedType.value)
-  const weight = currentWeightOptions.value.find((w) => w.id === selectedWeight.value)
+  if (!product.value) return
+
+  let selectedTypeText = ''
+
+  // Tạo text hiển thị dựa trên category
+  if (isCustomProduct.value && customProduct.value) {
+    const type = customProduct.value.types.find((t) => t.id === selectedType.value)
+    const weight = currentWeightOptions.value.find((w) => w.id === selectedWeight.value)
+    selectedTypeText = `${type?.name} - ${weight?.name}`
+  } else {
+    selectedTypeText = 'Sản phẩm có sẵn'
+  }
 
   cartStore.addItem({
     id: `${product.value.id}-${Date.now()}`,
@@ -65,10 +106,10 @@ function addToCart() {
     productName: product.value.name,
     productImage: product.value.images[0],
     quantity: quantity.value,
-    selectedType: `${type?.name} - ${weight?.name}`,
-    selectedWeight: selectedWeight.value,
-    selectedVolume: selectedVolume.value,
-    selectedPackage: selectedPackage.value,
+    selectedType: selectedTypeText,
+    selectedWeight: isCustomProduct.value ? selectedWeight.value : '',
+    selectedVolume: isCustomProduct.value ? selectedVolume.value : '',
+    selectedPackage: isCustomProduct.value ? selectedPackage.value : null,
     price: unitPrice.value,
     totalPrice: totalPrice.value,
   })
@@ -78,8 +119,18 @@ function addToCart() {
 
 // Mua ngay - chỉ mua sản phẩm hiện tại, không tính giỏ hàng
 function goToCheckout() {
-  const type = product.value.types.find((t) => t.id === selectedType.value)
-  const weight = currentWeightOptions.value.find((w) => w.id === selectedWeight.value)
+  if (!product.value) return
+
+  let selectedTypeText = ''
+
+  // Tạo text hiển thị dựa trên category
+  if (isCustomProduct.value && customProduct.value) {
+    const type = customProduct.value.types.find((t) => t.id === selectedType.value)
+    const weight = currentWeightOptions.value.find((w) => w.id === selectedWeight.value)
+    selectedTypeText = `${type?.name} - ${weight?.name}`
+  } else {
+    selectedTypeText = 'Sản phẩm có sẵn'
+  }
 
   // Tạo CartItem từ sản phẩm hiện tại
   const directPurchaseItem = {
@@ -88,10 +139,10 @@ function goToCheckout() {
     productName: product.value.name,
     productImage: product.value.images[0],
     quantity: quantity.value,
-    selectedType: `${type?.name} - ${weight?.name}`,
-    selectedWeight: selectedWeight.value,
-    selectedVolume: selectedVolume.value,
-    selectedPackage: selectedPackage.value,
+    selectedType: selectedTypeText,
+    selectedWeight: isCustomProduct.value ? selectedWeight.value : '',
+    selectedVolume: isCustomProduct.value ? selectedVolume.value : '',
+    selectedPackage: isCustomProduct.value ? selectedPackage.value : null,
     price: unitPrice.value,
     totalPrice: totalPrice.value,
   }
@@ -105,7 +156,14 @@ function goToCheckout() {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-50 py-2">
+  <div v-if="!product" class="flex min-h-screen items-center justify-center bg-gray-50">
+    <div class="text-center">
+      <div class="mb-4 text-4xl">⏳</div>
+      <p class="text-gray-600">Đang tải sản phẩm...</p>
+    </div>
+  </div>
+
+  <div v-else class="min-h-screen bg-gray-50 py-2">
     <div class="container mx-auto px-4">
       <!-- Breadcrumb -->
       <nav class="mb-6 text-sm text-gray-600">
@@ -144,6 +202,7 @@ function goToCheckout() {
               }"
             >
               <img
+                v-if="product"
                 :src="product.images[0]"
                 class="h-full w-full object-contain drop-shadow-[0_15px_15px_rgba(0,0,0,0.15)]"
               />
@@ -166,8 +225,8 @@ function goToCheckout() {
           <!-- Product Info -->
           <div class="rounded-3xl border border-white-600 p-6 sm:p-10">
             <div>
-              <h1 class="mb-2 text-2xl font-bold text-white sm:text-3xl">{{ product.name }}</h1>
-              <p class="text-sm text-white sm:text-base">{{ product.description }}</p>
+              <h1 class="mb-2 text-2xl font-bold text-white sm:text-3xl">{{ product?.name }}</h1>
+              <p class="text-sm text-white sm:text-base">{{ product?.description }}</p>
             </div>
 
             <!-- Quantity Counter -->
@@ -179,15 +238,18 @@ function goToCheckout() {
             </div>
           </div>
 
-          <!-- Product Type Selection Card -->
-          <div class="rounded-2xl border border-gray-200 p-4 shadow-sm sm:p-6">
+          <!-- Product Type Selection Card - Chỉ hiển thị cho custom product -->
+          <div
+            v-if="isCustomProduct && customProduct"
+            class="rounded-2xl border border-gray-200 p-4 shadow-sm sm:p-6"
+          >
             <div class="mb-4">
               <h3 class="text-lg font-bold text-white sm:text-xl">Lượng Yến</h3>
               <p class="text-xs text-accent sm:text-sm">Chọn lượng yến mong muốn</p>
             </div>
 
             <div class="space-y-4">
-              <ProductTypeSelector v-model="selectedType" :types="product.types" />
+              <ProductTypeSelector v-model="selectedType" :types="customProduct.types" />
 
               <div class="h-px bg-gray-200"></div>
 
@@ -195,14 +257,34 @@ function goToCheckout() {
             </div>
           </div>
 
-          <!-- Volume Selection -->
-          <div class="rounded-2xl border border-gray-200 p-4 shadow-sm sm:p-6">
-            <VolumeSelector v-model="selectedVolume" :volumes="product.volumeOptions" />
+          <!-- Volume Selection - Chỉ hiển thị cho custom product -->
+          <div
+            v-if="isCustomProduct && customProduct"
+            class="rounded-2xl border border-gray-200 p-4 shadow-sm sm:p-6"
+          >
+            <VolumeSelector v-model="selectedVolume" :volumes="customProduct.volumeOptions" />
           </div>
 
-          <!-- Package Selection -->
-          <div class="rounded-2xl border border-gray-200 p-4 shadow-sm sm:p-6">
-            <PackageSelector v-model="selectedPackage" :packages="product.packageOptions" />
+          <!-- Package Selection - Chỉ hiển thị cho custom product -->
+          <div
+            v-if="isCustomProduct && customProduct"
+            class="rounded-2xl border border-gray-200 p-4 shadow-sm sm:p-6"
+          >
+            <PackageSelector v-model="selectedPackage" :packages="customProduct.packageOptions" />
+          </div>
+
+          <!-- Thông báo cho combo/unit product -->
+          <div
+            v-if="!isCustomProduct"
+            class="rounded-2xl border border-yellow-200 bg-yellow-50 p-4 shadow-sm sm:p-6"
+          >
+            <p class="text-center text-sm text-yellow-800">
+              {{
+                product?.category === 'combo'
+                  ? '🎁 Sản phẩm combo có sẵn, chỉ cần chọn số lượng!'
+                  : '📦 Sản phẩm đơn lẻ có sẵn, chỉ cần chọn số lượng!'
+              }}
+            </p>
           </div>
 
           <div

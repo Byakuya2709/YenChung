@@ -1,19 +1,16 @@
 <!-- filepath: src/views/HomeView.vue -->
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { mockProduct } from '@/mock/products'
+import { ref, computed } from 'vue'
+import { mockCustomProduct, mockComboProducts, mockUnitProducts } from '@/mock/products'
 import HeroSection from '@/components/features/HeroSection.vue'
 import ProductCard from '@/components/features/ProductCard.vue'
 import type { Product } from '@/types/product'
 
-// Mock multiple products (sẽ thay bằng API sau)
-const products = ref<Product[]>([
-  mockProduct,
-  { ...mockProduct, id: 'bird-nest-002', name: 'Yến Sào Hảo Hạng' },
-  { ...mockProduct, id: 'bird-nest-003', name: 'Yến Sào Đặc Biệt' },
-  { ...mockProduct, id: 'bird-nest-004', name: 'Yến Sào Premium' },
-])
+// Nhóm sản phẩm theo category
+const customProducts = ref<Product[]>(mockCustomProduct)
+const comboProducts = ref<Product[]>(mockComboProducts)
+const unitProducts = ref<Product[]>(mockUnitProducts)
 </script>
 
 <template>
@@ -21,19 +18,50 @@ const products = ref<Product[]>([
     <!-- Hero Section -->
     <HeroSection />
 
-    <!-- Products Section -->
-    <section id="products" class="bg-gray-50 py-16 lg:py-24">
+    <!-- Custom Products Section -->
+    <section id="custom-products" class="bg-gray-50 py-16 lg:py-20">
       <div class="container mx-auto px-4">
-        <div class="mb-12 text-center">
-          <h2 class="mb-4 text-3xl font-bold text-gray-900 lg:text-4xl">Sản Phẩm Nổi Bật</h2>
+        <div class="mb-10 text-center">
+          <h2 class="mb-3 text-3xl font-bold text-gray-900 lg:text-4xl">Tùy Chỉnh Theo Ý Bạn</h2>
           <p class="mx-auto max-w-2xl text-gray-600">
-            Chúng tôi cung cấp các sản phẩm yến sào chất lượng cao, được chọn lọc kỹ càng từ thiên
-            nhiên.
+            Lựa chọn trọng lượng, thể tích, và bao bì theo sở thích của bạn
           </p>
         </div>
 
         <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          <ProductCard v-for="product in products" :key="product.id" :product="product" />
+          <ProductCard v-for="product in customProducts" :key="product.id" :product="product" />
+        </div>
+      </div>
+    </section>
+
+    <!-- Combo Products Section -->
+    <section id="combo-products" class="bg-white py-16 lg:py-20">
+      <div class="container mx-auto px-4">
+        <div class="mb-10 text-center">
+          <h2 class="mb-3 text-3xl font-bold text-gray-900 lg:text-4xl">Combo Tiết Kiệm</h2>
+          <p class="mx-auto max-w-2xl text-gray-600">
+            Các gói combo có sẵn với giá ưu đãi, phù hợp cho gia đình và doanh nghiệp
+          </p>
+        </div>
+
+        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <ProductCard v-for="product in comboProducts" :key="product.id" :product="product" />
+        </div>
+      </div>
+    </section>
+
+    <!-- Unit Products Section -->
+    <section id="unit-products" class="bg-gray-50 py-16 lg:py-20">
+      <div class="container mx-auto px-4">
+        <div class="mb-10 text-center">
+          <h2 class="mb-3 text-3xl font-bold text-gray-900 lg:text-4xl">Sản Phẩm Đơn Lẻ</h2>
+          <p class="mx-auto max-w-2xl text-gray-600">
+            Các sản phẩm có sẵn với cấu hình cố định, mua ngay không cần tùy chỉnh
+          </p>
+        </div>
+
+        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <ProductCard v-for="product in unitProducts" :key="product.id" :product="product" />
         </div>
       </div>
     </section>
