@@ -1,10 +1,17 @@
 <!-- filepath: src/components/common/ProductCarousel.vue -->
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed } from 'vue'
+import { Swiper, SwiperSlide } from 'swiper/vue'
+import { Pagination, Autoplay } from 'swiper/modules'
 import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import ProductCard from '@/components/features/ProductCard.vue'
 import type { Product } from '@/types/product'
+import type { Swiper as SwiperType } from 'swiper'
+
+// Import Swiper styles
+import 'swiper/css'
+import 'swiper/css/pagination'
 
 interface Props {
   products: Product[]
@@ -17,134 +24,144 @@ const props = withDefaults(defineProps<Props>(), {
   autoplayInterval: 5000,
 })
 
-const currentIndex = ref(0)
-const isTransitioning = ref(false)
-let autoplayTimer: number | null = null
+// Swiper instance ref
+const swiperRef = ref<SwiperType | null>(null)
+const isBeginning = ref(true)
+const isEnd = ref(false)
 
-// Tính số items hiển thị dựa vào màn hình
-const itemsPerView = computed(() => {
-  if (typeof window === 'undefined') return 4
-  const width = window.innerWidth
-  if (width < 640) return 2 // mobile: 2 cols
-  if (width < 1024) return 3 // tablet: 3 cols
-  return 4 // desktop: 4 cols
-})
+// Chỉ bật carousel khi có > 4 sản phẩm
+const shouldShowCarousel = computed(() => props.products.length > 4)
 
-const maxIndex = computed(() => {
-  return Math.max(0, props.products.length - itemsPerView.value)
-})
+// Swiper modules (không có Navigation - ta tự làm)
+const modules = [Pagination, Autoplay]
 
-const canGoPrev = computed(() => currentIndex.value > 0)
-const canGoNext = computed(() => currentIndex.value < maxIndex.value)
-
-const visibleProducts = computed(() => {
-  return props.products.slice(currentIndex.value, currentIndex.value + itemsPerView.value)
-})
-
-function goToPrev() {
-  if (!canGoPrev.value || isTransitioning.value) return
-  isTransitioning.value = true
-  currentIndex.value = Math.max(0, currentIndex.value - 1)
-  setTimeout(() => {
-    isTransitioning.value = false
-  }, 500)
+// Swiper breakpoints cho responsive
+const breakpoints = {
+  320: {
+    slidesPerView: 2,
+    spaceBetween: 16,
+  },
+  1024: {
+    slidesPerView: 3,
+    spaceBetween: 16,
+  },
+  1280: {
+    slidesPerView: 4,
+    spaceBetween: 16,
+  },
 }
 
-function goToNext() {
-  if (!canGoNext.value || isTransitioning.value) return
-  isTransitioning.value = true
-  currentIndex.value = Math.min(maxIndex.value, currentIndex.value + 1)
-  setTimeout(() => {
-    isTransitioning.value = false
-  }, 500)
-}
-
-function startAutoplay() {
-  if (!props.autoplay) return
-  stopAutoplay()
-  autoplayTimer = window.setInterval(() => {
-    if (canGoNext.value) {
-      goToNext()
-    } else {
-      currentIndex.value = 0
+// Autoplay config
+const autoplayConfig = props.autoplay
+  ? {
+      delay: props.autoplayInterval,
+      disableOnInteraction: false,
+      pauseOnMouseEnter: true,
     }
-  }, props.autoplayInterval)
+  : false
+
+// Swiper event handlers
+function onSwiper(swiper: SwiperType) {
+  swiperRef.value = swiper
+  isBeginning.value = swiper.isBeginning
+  isEnd.value = swiper.isEnd
 }
 
-function stopAutoplay() {
-  if (autoplayTimer !== null) {
-    clearInterval(autoplayTimer)
-    autoplayTimer = null
-  }
+function onSlideChange(swiper: SwiperType) {
+  isBeginning.value = swiper.isBeginning
+  isEnd.value = swiper.isEnd
 }
 
-onMounted(() => {
-  startAutoplay()
-})
+// Custom navigation functions
+function goNext() {
+  swiperRef.value?.slideNext()
+}
 
-onUnmounted(() => {
-  stopAutoplay()
-})
+function goPrev() {
+  swiperRef.value?.slidePrev()
+}
 </script>
 
 <template>
-  <div class="relative" @mouseenter="stopAutoplay" @mouseleave="startAutoplay">
-    <!-- Carousel Container -->
-    <div class="overflow-hidden">
+  <div class="carousel-wrapper">
+    <!-- Grid thông thường khi ≤ 4 sản phẩm - CENTERED -->
+    <div v-if="!shouldShowCarousel" class="flex w-full justify-center">
       <div
-        class="grid gap-4 transition-all duration-500 ease-out sm:gap-6"
+        class="grid gap-4"
         :class="{
-          'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4': true,
+          'grid-cols-1': products.length === 1,
+          'grid-cols-2': products.length >= 2,
+          'lg:grid-cols-3': products.length >= 3,
+          'xl:grid-cols-4': products.length >= 4,
         }"
       >
-        <TransitionGroup name="fade">
-          <div v-for="product in visibleProducts" :key="product.id">
-            <ProductCard :product="product" />
-          </div>
-        </TransitionGroup>
+        <div v-for="product in products" :key="product.id" class="w-44 sm:w-52 lg:w-60">
+          <ProductCard :product="product" />
+        </div>
       </div>
     </div>
 
-    <!-- Navigation Buttons -->
-    <button
-      v-if="canGoPrev"
-      @click="goToPrev"
-      class="absolute -left-4 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-lg transition-all hover:scale-110 hover:bg-primary hover:text-white disabled:opacity-50 sm:-left-6"
-      :disabled="!canGoPrev"
-    >
-      <ChevronLeft class="h-6 w-6" />
-    </button>
-
-    <button
-      v-if="canGoNext"
-      @click="goToNext"
-      class="absolute -right-4 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-lg transition-all hover:scale-110 hover:bg-primary hover:text-white disabled:opacity-50 sm:-right-6"
-      :disabled="!canGoNext"
-    >
-      <ChevronRight class="h-6 w-6" />
-    </button>
-
-    <!-- Dots Indicator -->
-    <div v-if="maxIndex > 0" class="mt-6 flex justify-center gap-2">
+    <!-- Swiper Carousel khi > 4 sản phẩm -->
+    <div v-else class="relative mx-auto">
+      <!-- Custom Prev Button - Đặt bên ngoài hoàn toàn -->
       <button
-        v-for="i in maxIndex + 1"
-        :key="i"
-        @click="currentIndex = i - 1"
-        class="h-2 rounded-full transition-all"
-        :class="currentIndex === i - 1 ? 'w-8 bg-primary' : 'w-2 bg-gray-300 hover:bg-gray-400'"
-      ></button>
+        v-show="!isBeginning"
+        @click="goPrev"
+        class="absolute -left-2 top-1/2 z-50 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-xl transition-all hover:scale-110 hover:bg-gradient-to-br hover:from-orange-500 hover:to-red-500 hover:text-white sm:-left-6 sm:flex"
+      >
+        <ChevronLeft class="h-6 w-6" />
+      </button>
+
+      <!-- Swiper -->
+      <div class="px-0 sm:px-8">
+        <Swiper
+          :modules="modules"
+          :slides-per-view="2"
+          :space-between="16"
+          :breakpoints="breakpoints"
+          :pagination="{ clickable: true }"
+          :autoplay="autoplayConfig"
+          :loop="false"
+          :centered-slides="false"
+          class="!pb-12"
+          @swiper="onSwiper"
+          @slide-change="onSlideChange"
+        >
+          <SwiperSlide v-for="product in products" :key="product.id" class="!h-auto">
+            <ProductCard :product="product" />
+          </SwiperSlide>
+        </Swiper>
+      </div>
+
+      <!-- Custom Next Button - Đặt bên ngoài hoàn toàn -->
+      <button
+        v-show="!isEnd"
+        @click="goNext"
+        class="absolute -right-2 top-1/2 z-50 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-xl transition-all hover:scale-110 hover:bg-gradient-to-br hover:from-orange-500 hover:to-red-500 hover:text-white sm:-right-6 sm:flex"
+      >
+        <ChevronRight class="h-6 w-6" />
+      </button>
     </div>
   </div>
 </template>
 
 <style scoped>
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.5s ease;
+/* Custom pagination styles */
+:deep(.swiper-pagination-bullet) {
+  width: 8px;
+  height: 8px;
+  background: #d1d5db;
+  opacity: 1;
+  transition: all 0.3s;
 }
 
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
+:deep(.swiper-pagination-bullet-active) {
+  width: 32px;
+  border-radius: 4px;
+  background: linear-gradient(135deg, #f97316 0%, #ef4444 100%);
+}
+
+:deep(.swiper-pagination-bullet:hover) {
+  background: #9ca3af;
 }
 </style>

@@ -20,7 +20,7 @@ function scrollToProducts() {
 <template>
   <section
     class="relative overflow-hidden bg-gradient-to-br from-red-600 via-red-500 to-orange-500"
-    style="background-image: url('/public/bg-3.png')"
+    style="background-image: url('/bg-3.png')"
   >
     <!-- Animated Background Pattern -->
     <div class="absolute inset-0 opacity-10">

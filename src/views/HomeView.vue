@@ -29,7 +29,7 @@ const unitProducts = ref<Product[]>(mockUnitProducts)
         <div class="absolute right-0 top-0 h-96 w-96 rounded-full bg-blue-500 blur-3xl"></div>
       </div>
 
-      <div class="container relative mx-auto px-4">
+      <div class="container relative mx-auto max-w-7xl px-4">
         <!-- Section Header -->
         <div class="mb-8 text-center sm:mb-10 lg:mb-12">
           <div
@@ -49,12 +49,14 @@ const unitProducts = ref<Product[]>(mockUnitProducts)
         </div>
 
         <!-- Carousel -->
-        <ProductCarousel :products="customProducts" :autoplay="true" />
+        <div class="mx-auto max-w-6xl">
+          <ProductCarousel :products="customProducts" :autoplay="true" />
+        </div>
       </div>
     </section>
 
     <!-- Combo Products Section -->
-    <section id="combo-products" class="relative overflow-hidden bg-white py-12 sm:py-16 lg:py-20">
+    <section id="combo-products" class="overflow-hidden bg-white py-12 sm:py-16 lg:py-20">
       <!-- Decorative Background -->
       <div class="pointer-events-none absolute inset-0 opacity-5">
         <div
@@ -62,7 +64,7 @@ const unitProducts = ref<Product[]>(mockUnitProducts)
         ></div>
       </div>
 
-      <div class="container relative mx-auto px-4">
+      <div class="container relative mx-auto max-w-7xl px-4">
         <!-- Section Header -->
         <div class="mb-8 text-center sm:mb-10 lg:mb-12">
           <div
@@ -82,21 +84,23 @@ const unitProducts = ref<Product[]>(mockUnitProducts)
         </div>
 
         <!-- Carousel -->
-        <ProductCarousel :products="comboProducts" :autoplay="true" :autoplay-interval="6000" />
+        <div class="mx-auto max-w-6xl">
+          <ProductCarousel :products="comboProducts" :autoplay="true" :autoplay-interval="6000" />
+        </div>
       </div>
     </section>
 
     <!-- Unit Products Section -->
     <section
       id="unit-products"
-      class="relative overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 py-12 sm:py-16 lg:py-20"
+      class="overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 py-12 sm:py-16 lg:py-20"
     >
       <!-- Decorative Background -->
       <div class="pointer-events-none absolute inset-0 opacity-5">
         <div class="absolute bottom-0 right-1/4 h-96 w-96 rounded-full bg-green-500 blur-3xl"></div>
       </div>
 
-      <div class="container relative mx-auto px-4">
+      <div class="container relative mx-auto max-w-7xl px-4">
         <!-- Section Header -->
         <div class="mb-8 text-center sm:mb-10 lg:mb-12">
           <div
@@ -116,7 +120,9 @@ const unitProducts = ref<Product[]>(mockUnitProducts)
         </div>
 
         <!-- Carousel -->
-        <ProductCarousel :products="unitProducts" :autoplay="true" :autoplay-interval="7000" />
+        <div class="mx-auto max-w-6xl">
+          <ProductCarousel :products="unitProducts" :autoplay="true" :autoplay-interval="7000" />
+        </div>
       </div>
     </section>
 
@@ -200,7 +206,7 @@ const unitProducts = ref<Product[]>(mockUnitProducts)
     <section
       id="contact"
       class="relative overflow-hidden bg-gradient-to-br from-red-600 to-orange-600 py-12 sm:py-16 lg:py-24"
-      style="background-image: url('/public/bg-3.png')"
+      style="background-image: url('/bg-3.png')"
     >
       <!-- Animated Background -->
       <div class="pointer-events-none absolute inset-0 opacity-10">
