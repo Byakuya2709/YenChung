@@ -54,7 +54,7 @@ const unitProducts = ref<Product[]>(mockUnitProducts)
     <section id="unit-products" class="bg-gray-50 py-16 lg:py-20">
       <div class="container mx-auto px-4">
         <div class="mb-10 text-center">
-          <h2 class="mb-3 text-3xl font-bold text-gray-900 lg:text-4xl">Sản Phẩm Đơn Lẻ</h2>
+          <h2 class="mb-3 text-3xl font-bold text-gray-900 lg:text-4xl">Sản Phẩm Yến Thô</h2>
           <p class="mx-auto max-w-2xl text-gray-600">
             Các sản phẩm có sẵn với cấu hình cố định, mua ngay không cần tùy chỉnh
           </p>

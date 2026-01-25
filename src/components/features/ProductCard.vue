@@ -49,7 +49,7 @@ function viewDetail() {
 
       <div class="flex items-center justify-between">
         <div>
-          <p class="text-sm text-gray-500">Từ</p>
+          <p v-if="product.category === 'custom'" class="text-sm text-gray-500">Chỉ từ</p>
           <p class="text-xl font-bold text-primary">{{ formatPrice(product.basePrice) }}</p>
         </div>
 
