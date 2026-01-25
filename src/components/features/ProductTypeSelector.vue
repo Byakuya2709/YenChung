@@ -18,7 +18,7 @@ const emit = defineEmits<{
 
 <template>
   <div class="space-y-0">
-    <div
+    <!-- <div
       v-for="type in types"
       :key="type.id"
       @click="emit('update:modelValue', type.id)"
@@ -59,6 +59,6 @@ const emit = defineEmits<{
           </div>
         </div>
       </div>
-    </div>
+    </div> -->
   </div>
 </template>

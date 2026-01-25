@@ -19,9 +19,9 @@ const emit = defineEmits<{
 <template>
   <div>
     <!-- Tiêu đề section -->
-    <div class="mb-3 px-4">
+    <!-- <div class="mb-3 px-4">
       <h3 class="text-[22px] font-bold leading-7 -tracking-[0.26px] text-white/95">Trọng Lượng:</h3>
-    </div>
+    </div> -->
 
     <!-- Danh sách weight options -->
     <div class="space-y-0">

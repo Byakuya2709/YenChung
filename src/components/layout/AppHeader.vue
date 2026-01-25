@@ -19,7 +19,7 @@ const navigation = [
 </script>
 
 <template>
-  <header class="sticky top-0 z-50 border-b border-gray-200 bg-white shadow-sm">
+  <header class="sticky top-0 border-b border-gray-200 bg-white shadow-sm z-[999999]">
     <nav class="container mx-auto">
       <div class="flex h-16 items-center justify-between px-4 lg:h-20">
         <!-- Logo -->
@@ -28,7 +28,7 @@ const navigation = [
             <span class="text-xl font-bold text-white">Y</span>
           </div>
           <div class="hidden sm:block">
-            <h1 class="text-lg font-bold text-primary lg:text-xl">Yến Sào Cao Cấp</h1>
+            <h1 class="text-lg font-bold text-primary lg:text-xl">Lưu Gia Yến</h1>
             <p class="text-xs text-gray-600">Thiên nhiên 100%</p>
           </div>
         </router-link>

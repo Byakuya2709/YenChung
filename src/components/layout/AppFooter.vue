@@ -3,12 +3,10 @@
 <script setup lang="ts">
 import { Phone, Mail, MapPin, Facebook, MessageCircle } from 'lucide-vue-next'
 
-const currentYear = new Date().getFullYear()
-
 const contactInfo = [
   { icon: Phone, text: '0123 456 789', href: 'tel:0123456789' },
   { icon: Mail, text: 'contact@yensao.vn', href: 'mailto:contact@yensao.vn' },
-  { icon: MapPin, text: 'Hà Nội, Việt Nam', href: '#' },
+  { icon: MapPin, text: 'Tam Bình, Vĩnh Long', href: '#' },
 ]
 
 const socialLinks = [
@@ -76,11 +74,11 @@ const socialLinks = [
       </div>
 
       <!-- Copyright -->
-      <div class="mt-8 border-t border-gray-200 pt-8 text-center">
+      <!-- <div class="mt-8 border-t border-gray-200 pt-8 text-center">
         <p class="text-sm text-gray-600">
           © {{ currentYear }} Yến Sào Cao Cấp. Tất cả quyền được bảo lưu.
         </p>
-      </div>
+      </div> -->
     </div>
   </footer>
 </template>

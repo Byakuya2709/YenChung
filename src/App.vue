@@ -9,9 +9,9 @@ import AppFooter from '@/components/layout/AppFooter.vue'
 <template>
   <div class="flex min-h-screen flex-col">
     <AppHeader />
-    <main class="flex-1">
+    <main class="relative flex-1 pb-20 sm:pb-0">
       <RouterView />
     </main>
-    <AppFooter />
+    <!-- <AppFooter /> -->
   </div>
 </template>

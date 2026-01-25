@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 
 interface Props {
-  variant?: 'primary' | 'secondary' | 'tertiary'
+  variant?: 'primary' | 'secondary' | 'cta'
   type?: 'button' | 'submit' | 'reset'
   disabled?: boolean
   loading?: boolean
@@ -19,7 +19,9 @@ const variantClasses = computed(() => {
   if (props.variant === 'primary') {
     return 'bg-primary-500 text-white shadow-[inset_1px_1px_0_-0.5px_#333,inset_-1px_-1px_0_-0.5px_#262626,inset_0_0_11px_#F2F2F2] backdrop-blur-xl text-[#75010C]'
   } else if (props.variant === 'secondary') {
-    return 'bg-white text-primary rounded-[20px] border border-gray-600/50 bg-gray-100/30 backdrop-blur-lg shadow-lg'
+    return ' text-primary bg-white/90 text-primary rounded-[20px] border border-gray-600/50 bg-gray-100/30 backdrop-blur-lg shadow-lg'
+  } else if (props.variant === 'cta') {
+    return ' text-white bg-yellow-600 text-primary rounded-[20px] border border-gray-600/50 bg-gray-100/30 backdrop-blur-lg shadow-lg'
   }
   return 'bg-white/50 text-white rounded-[20px] border border-gray-600/50 bg-gray-100/30 backdrop-blur-lg shadow-lg'
 })

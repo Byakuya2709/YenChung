@@ -53,7 +53,7 @@ async function handleSubmit() {
       <form @submit.prevent="handleSubmit" class="space-y-6">
         <!-- Thông tin khách hàng -->
         <div class="rounded-2xl bg-white p-6 shadow-md">
-          <h2 class="mb-4 text-xl font-bold text-gray-900">Thông tin giao hàng</h2>
+          <h2 class="mb-4 text-xl font-bold text-gray-900">Thông tin đơn hàng</h2>
 
           <div class="space-y-4">
             <div>
@@ -85,14 +85,13 @@ async function handleSubmit() {
 
             <div>
               <label class="mb-1 block text-sm font-medium text-gray-700">
-                Địa chỉ <span class="text-red-500">*</span>
+                Địa chỉ <span class="text-red-500"></span>
               </label>
               <textarea
                 v-model="formData.address"
-                required
                 rows="3"
                 class="w-full resize-none rounded-lg border border-gray-300 px-4 py-2 focus:border-transparent focus:ring-2 focus:ring-primary"
-                placeholder="Nhập địa chỉ giao hàng"
+                placeholder="Chỉ nhận khu vực nội ô Tam Bình, Vĩnh Long"
               ></textarea>
             </div>
 
