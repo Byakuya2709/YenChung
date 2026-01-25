@@ -18,7 +18,7 @@ const emit = defineEmits<{
 
 <template>
   <div>
-    <h4 class="mb-3 font-semibold text-gray-900">Đóng Gói:</h4>
+    <h4 class="mb-3 font-semibold text-white">Đóng Gói:</h4>
 
     <div class="grid grid-cols-4 gap-3">
       <div

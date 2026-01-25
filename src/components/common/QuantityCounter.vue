@@ -1,8 +1,6 @@
 <!-- filepath: src/components/common/QuantityCounter.vue -->
 
 <script setup lang="ts">
-import { Minus, Plus } from 'lucide-vue-next'
-
 interface Props {
   modelValue: number
   min?: number
@@ -32,25 +30,25 @@ function decrement() {
 </script>
 
 <template>
-  <div class="inline-flex items-center rounded-lg border border-gray-300 bg-white">
+  <div
+    class="flex items-center gap-4 rounded-full border border-gray-600/50 bg-white/10 px-3 py-2 shadow-lg backdrop-blur-md"
+  >
     <button
       @click="decrement"
       :disabled="modelValue <= min"
-      class="p-2 transition-colors hover:bg-gray-50 disabled:opacity-50"
+      class="w-6 text-center text-xl font-semibold text-white/95 transition-opacity hover:opacity-80 disabled:opacity-50"
     >
-      <Minus class="h-5 w-5 text-gray-700" />
+      -
     </button>
-
-    <div class="min-w-[3rem] px-4 text-center font-semibold text-gray-900">
+    <div class="min-w-[20px] text-center text-base font-semibold text-white/95">
       {{ modelValue }}
     </div>
-
     <button
       @click="increment"
       :disabled="max !== undefined && modelValue >= max"
-      class="p-2 transition-colors hover:bg-gray-50 disabled:opacity-50"
+      class="w-6 text-center text-xl font-semibold text-white/95 transition-opacity hover:opacity-80 disabled:opacity-50"
     >
-      <Plus class="h-5 w-5 text-gray-700" />
+      +
     </button>
   </div>
 </template>

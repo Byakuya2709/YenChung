@@ -21,7 +21,7 @@ export default {
       },
       backgroundImage: {
         'pattern-red':
-          "url('/public/bg-red.jpg')",
+          "url('/bg-red2.jpg')",
       },
       container: {
         center: true,

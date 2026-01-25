@@ -92,9 +92,7 @@ function goToCheckout() {
       <div class="grid gap-8 lg:grid-cols-2">
         <!-- Left Column: Images -->
         <div class="space-y-4">
-          <div
-            class="relative aspect-square overflow-hidden rounded-2xl bg-primary-900 bg-pattern-red shadow-xl"
-          >
+          <div class="relative aspect-square overflow-hidden rounded-2x shadow-xl">
             <img :src="product.images[0]" :alt="product.name" class="h-full w-full object-cover" />
             <!-- Price Badge -->
             <div
@@ -106,7 +104,7 @@ function goToCheckout() {
           </div>
 
           <!-- Thumbnail Gallery -->
-          <div class="grid grid-cols-4 gap-2">
+          <!-- <div class="grid grid-cols-4 gap-2">
             <div
               v-for="(image, index) in product.images"
               :key="index"
@@ -118,27 +116,28 @@ function goToCheckout() {
                 class="h-full w-full object-cover"
               />
             </div>
-          </div>
+          </div> -->
         </div>
 
         <!-- Right Column: Product Options -->
-        <div class="space-y-6">
+        <div class="space-y-6 bg-pattern-red rounded-2xl p-6 shadow-lg lg:sticky lg:top-8">
           <!-- Product Info -->
-          <div>
-            <h1 class="mb-2 text-3xl font-bold text-gray-900">{{ product.name }}</h1>
-            <p class="text-gray-600">{{ product.description }}</p>
-          </div>
+          <div class="border border-white-600 rounded-3xl p-10">
+            <div>
+              <h1 class="mb-2 text-3xl font-bold text-white">{{ product.name }}</h1>
+              <p class="text-white">{{ product.description }}</p>
+            </div>
 
-          <!-- Quantity -->
-          <div class="flex items-center gap-4">
-            <label class="font-semibold text-gray-900">Số lượng:</label>
-            <QuantityCounter v-model="quantity" />
+            <!-- Quantity -->
+            <div class="flex items-center gap-4 mt-5 justify-between">
+              <h3 class="text-4xl font-bold text-white">{{ formattedPrice }}</h3>
+              <QuantityCounter v-model="quantity" />
+            </div>
           </div>
-
           <!-- Product Type Selection Card -->
-          <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+          <div class="rounded-2xl border border-gray-200 p-6 shadow-sm">
             <div class="mb-4">
-              <h3 class="text-xl font-bold text-gray-900">Loại Yến</h3>
+              <h3 class="text-xl font-bold text-white">Loại Yến</h3>
               <p class="text-sm text-accent">Chọn loại yến và khối lượng</p>
             </div>
 
@@ -152,32 +151,37 @@ function goToCheckout() {
           </div>
 
           <!-- Volume Selection -->
-          <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+          <div class="rounded-2xl border border-gray-200 p-6 shadow-sm">
             <VolumeSelector v-model="selectedVolume" :volumes="product.volumeOptions" />
           </div>
 
           <!-- Package Selection -->
-          <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+          <div class="rounded-2xl border border-gray-200 p-6 shadow-sm">
             <PackageSelector v-model="selectedPackage" :packages="product.packageOptions" />
           </div>
 
           <!-- Action Buttons -->
           <div class="sticky bottom-4 flex gap-3">
-            <button
+            <PrimaryButton
+              type="submit"
               @click="addToCart"
-              class="flex flex-1 items-center justify-center gap-2 rounded-xl border-2 border-primary bg-white px-6 py-3 font-semibold text-primary transition-colors hover:bg-primary-50"
+              class="flex flex-1 items-center justify-center gap-2 rounded-2xl px-6 py-3 font-semibold transition-colors"
             >
-              <ShoppingCart class="h-5 w-5" />
-              Thêm Giỏ Hàng
-            </button>
+              <ShoppingCart class="h-5 w-5 inline-block" />
 
-            <button
+              Thêm giỏ hàng
+            </PrimaryButton>
+
+            <PrimaryButton
+              type="submit"
               @click="goToCheckout"
-              class="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 font-semibold text-white transition-colors hover:bg-primary-600"
+              variant="secondary"
+              class="flex flex-2 items-center justify-center gap-2 rounded-2xl px-6 py-3 font-semibold transition-colors"
+              style="background-color: white !important"
             >
-              <CreditCard class="h-5 w-5" />
-              Mua Ngay
-            </button>
+              <ShoppingCart class="h-5 w-5 inline-block" />
+              Mua ngay
+            </PrimaryButton>
           </div>
         </div>
       </div>
