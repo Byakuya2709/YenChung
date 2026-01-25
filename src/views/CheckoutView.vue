@@ -5,6 +5,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCartStore } from '@/stores/cart'
 import { useOrder } from '@/composables/useOrder'
+import { sendOrderNotification, type OrderInfo } from '@/services/telegram'
 import MobileHeader from '@/components/layout/MobileHeader.vue'
 import PrimaryButton from '@/components/common/PrimaryButton.vue'
 import type { OrderForm } from '@/types/order'
@@ -67,6 +68,30 @@ async function handleSubmit() {
   }
 
   if (order) {
+    // Gửi thông báo Telegram
+    const telegramOrder: OrderInfo = {
+      orderId: order.id,
+      customerName: formData.value.customerName,
+      customerPhone: formData.value.phoneNumber,
+      customerAddress: formData.value.address,
+      customerNote: formData.value.note || undefined,
+      items: displayItems.value.map((item) => ({
+        productName: item.productName,
+        quantity: item.quantity,
+        selectedType: item.selectedType,
+        selectedWeight: item.selectedWeight,
+        selectedVolume: item.selectedVolume,
+        totalPrice: item.totalPrice,
+      })),
+      totalAmount: totalPrice.value,
+      createdAt: new Date(),
+    }
+
+    // Gửi thông báo (không chờ, không block UI)
+    sendOrderNotification(telegramOrder).catch((err) => {
+      console.error('Lỗi gửi Telegram:', err)
+    })
+
     // Chỉ xóa giỏ hàng nếu checkout từ giỏ
     if (!isDirectPurchase.value) {
       cartStore.clearCart()
