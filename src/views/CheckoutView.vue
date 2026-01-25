@@ -1,17 +1,42 @@
 <!-- filepath: src/views/CheckoutView.vue -->
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCartStore } from '@/stores/cart'
 import { useOrder } from '@/composables/useOrder'
 import MobileHeader from '@/components/layout/MobileHeader.vue'
 import PrimaryButton from '@/components/common/PrimaryButton.vue'
 import type { OrderForm } from '@/types/order'
+import type { CartItem } from '@/types/cart'
 
 const router = useRouter()
 const cartStore = useCartStore()
-const { isSubmitting, orderError, createOrder } = useOrder()
+const { isSubmitting, orderError, createOrder, createDirectOrder } = useOrder()
+
+// State cho "mua ngay"
+const directPurchaseItem = ref<CartItem | null>(null)
+const isDirectPurchase = computed(() => directPurchaseItem.value !== null)
+
+// Items hiển thị: nếu là "mua ngay" thì dùng item đó, không thì dùng giỏ hàng
+const displayItems = computed(() => {
+  return isDirectPurchase.value ? [directPurchaseItem.value!] : cartStore.items
+})
+
+// Tổng giá
+const totalPrice = computed(() => {
+  return displayItems.value.reduce((sum, item) => sum + item.totalPrice, 0)
+})
+
+// Kiểm tra xem có direct purchase không khi mount
+onMounted(() => {
+  const directPurchaseData = sessionStorage.getItem('direct_purchase')
+  if (directPurchaseData) {
+    directPurchaseItem.value = JSON.parse(directPurchaseData)
+    // Xóa khỏi sessionStorage sau khi đọc
+    sessionStorage.removeItem('direct_purchase')
+  }
+})
 
 const formData = ref<OrderForm>({
   customerName: '',
@@ -25,16 +50,30 @@ function formatPrice(price: number): string {
 }
 
 async function handleSubmit() {
-  if (cartStore.items.length === 0) {
+  // Kiểm tra có sản phẩm không
+  if (displayItems.value.length === 0) {
     router.push('/')
     return
   }
 
-  const order = await createOrder(formData.value, cartStore.items)
+  let order
+
+  if (isDirectPurchase.value) {
+    // Mua ngay - chỉ mua 1 sản phẩm, không xóa giỏ hàng
+    order = await createDirectOrder(formData.value, directPurchaseItem.value!)
+  } else {
+    // Checkout từ giỏ hàng - mua tất cả items trong giỏ
+    order = await createOrder(formData.value, cartStore.items)
+  }
 
   if (order) {
-    // Xóa giỏ hàng
-    cartStore.clearCart()
+    // Chỉ xóa giỏ hàng nếu checkout từ giỏ
+    if (!isDirectPurchase.value) {
+      cartStore.clearCart()
+    }
+
+    // Reset direct purchase
+    directPurchaseItem.value = null
 
     // Chuyển đến trang thành công
     router.push({
@@ -111,11 +150,13 @@ async function handleSubmit() {
 
         <!-- Đơn hàng -->
         <div class="rounded-2xl bg-white p-6 shadow-md">
-          <h2 class="mb-4 text-xl font-bold text-gray-900">Đơn hàng của bạn</h2>
+          <h2 class="mb-4 text-xl font-bold text-gray-900">
+            {{ isDirectPurchase ? 'Sản phẩm mua ngay' : 'Đơn hàng của bạn' }}
+          </h2>
 
           <div class="space-y-3">
             <div
-              v-for="item in cartStore.items"
+              v-for="item in displayItems"
               :key="item.id"
               class="flex items-start justify-between text-sm"
             >
@@ -136,7 +177,7 @@ async function handleSubmit() {
             <div class="flex items-center justify-between">
               <span class="text-lg font-bold text-gray-900">Tổng cộng:</span>
               <span class="text-2xl font-bold text-primary">
-                {{ formatPrice(cartStore.totalPrice) }}
+                {{ formatPrice(totalPrice) }}
               </span>
             </div>
           </div>

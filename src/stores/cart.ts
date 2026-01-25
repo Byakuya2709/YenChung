@@ -1,9 +1,23 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import type { Cart, CartItem } from '@/types/cart'
+import { setWithExpiry, getWithExpiry } from '@/utils/storage'
+
+const CART_STORAGE_KEY = 'user_cart'
 
 export const useCartStore = defineStore('cart', () => {
-  const items = ref<CartItem[]>([])
+  // Khôi phục giỏ hàng từ sessionStorage khi khởi tạo
+  const savedCart = getWithExpiry<CartItem[]>(CART_STORAGE_KEY)
+  const items = ref<CartItem[]>(savedCart || [])
+
+  // Tự động lưu vào sessionStorage mỗi khi items thay đổi
+  watch(
+    items,
+    (newItems) => {
+      setWithExpiry(CART_STORAGE_KEY, newItems)
+    },
+    { deep: true },
+  )
 
   const totalItems = computed(() => {
     return items.value.reduce((sum, item) => sum + item.quantity, 0)

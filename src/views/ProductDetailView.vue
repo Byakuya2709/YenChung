@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useOrder } from '@/composables/useOrder'
 import { useCartStore } from '@/stores/cart'
 import { useProductPrice } from '@/composables/useProductPrice'
 import { mockProduct } from '@/mock/products'
@@ -17,6 +18,7 @@ import { ShoppingCart } from 'lucide-vue-next'
 const router = useRouter()
 const route = useRoute()
 const cartStore = useCartStore()
+const { createDirectOrder } = useOrder()
 
 // State
 const product = ref<Product>(mockProduct)
@@ -72,11 +74,32 @@ function addToCart() {
   })
 
   quantity.value = 1
-  router.push('/cart')
 }
 
+// Mua ngay - chỉ mua sản phẩm hiện tại, không tính giỏ hàng
 function goToCheckout() {
-  addToCart()
+  const type = product.value.types.find((t) => t.id === selectedType.value)
+  const weight = currentWeightOptions.value.find((w) => w.id === selectedWeight.value)
+
+  // Tạo CartItem từ sản phẩm hiện tại
+  const directPurchaseItem = {
+    id: `${product.value.id}-${Date.now()}`,
+    productId: product.value.id,
+    productName: product.value.name,
+    productImage: product.value.images[0],
+    quantity: quantity.value,
+    selectedType: `${type?.name} - ${weight?.name}`,
+    selectedWeight: selectedWeight.value,
+    selectedVolume: selectedVolume.value,
+    selectedPackage: selectedPackage.value,
+    price: unitPrice.value,
+    totalPrice: totalPrice.value,
+  }
+
+  // Lưu vào sessionStorage với key riêng cho "mua ngay"
+  sessionStorage.setItem('direct_purchase', JSON.stringify(directPurchaseItem))
+
+  // Chuyển đến trang checkout
   router.push('/checkout')
 }
 </script>

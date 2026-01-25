@@ -4,11 +4,7 @@ export const mockProduct: Product = {
   id: 'bird-nest-001',
   name: 'Yến Chưng Ngũ Vị', //Yến Chưng Đường Ăn Kiêng, Truyền Thống (chưng đường phèn,gừng tươi)
   description: 'Đường phèn, táo đỏ, hạt chia, kỉ tử, nấm đông trùng',
-  images: [
-    '/public/products/price.png',
-    '/public/products/price.png',
-    '/public/products/price.png',
-  ],
+  images: ['/products/price.png'],
   basePrice: 5000,
   types: [
     {

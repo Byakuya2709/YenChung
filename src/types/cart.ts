@@ -4,9 +4,9 @@ export interface CartItem {
   productName: string
   productImage: string
   quantity: number
-  selectedType: string
-  selectedWeight: string
-  selectedVolume: string
+  selectedType: string | null
+  selectedWeight: string | null
+  selectedVolume: string | null
   selectedPackage: number | null
   price: number
   totalPrice: number
