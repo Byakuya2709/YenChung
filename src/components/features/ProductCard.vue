@@ -22,16 +22,26 @@ function viewDetail() {
   router.push(`/product/${props.product.id}`)
 }
 
+const productCategory = props.product.category
+
+const categoryMap: Record<string, string> = {
+  combo: 'Combo đủ đầy',
+  unit: 'Yến thô',
+}
+
 // Mua nhanh cho combo/unit (số lượng 1)
 function quickBuy() {
   // Tạo CartItem và lưu vào sessionStorage cho "mua ngay"
+
+  const type = categoryMap[productCategory] ?? ''
+
   const directPurchaseItem = {
     id: `${props.product.id}-${Date.now()}`,
     productId: props.product.id,
     productName: props.product.name,
     productImage: props.product.images[0],
     quantity: 1,
-    selectedType: 'Sản phẩm có sẵn',
+    selectedType: type,
     selectedWeight: '',
     selectedVolume: '',
     selectedPackage: null,

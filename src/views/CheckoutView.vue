@@ -221,12 +221,12 @@ async function handleSubmit() {
   }
 
   if (order) {
-    // Gửi thông báo Telegram
+    // Gửi thông báo Telegram với thông tin đầy đủ
     const telegramOrder: OrderInfo = {
       orderId: order.id,
       customerName: formData.value.customerName,
       customerPhone: formData.value.phoneNumber,
-      customerAddress: formData.value.address,
+      customerAddress: finalFormData.address, // Dùng địa chỉ đã format
       customerNote: formData.value.note || undefined,
       items: displayItems.value.map((item) => ({
         productName: item.productName,
@@ -236,6 +236,9 @@ async function handleSubmit() {
         selectedVolume: item.selectedVolume,
         totalPrice: item.totalPrice,
       })),
+      subtotal: totalPrice.value,
+      shippingFee: shippingFee.value,
+      discount: discount.value,
       totalAmount: finalTotal.value,
       createdAt: new Date(),
     }

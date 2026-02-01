@@ -85,6 +85,11 @@ const { unitPrice, totalPrice, formattedPrice } = useProductPrice(
   quantity,
 )
 
+const categoryMap: Record<string, string> = {
+  combo: 'Combo đủ đầy',
+  unit: 'Yến thô',
+}
+
 // Thêm vào giỏ hàng
 function addToCart() {
   if (!product.value) return
@@ -97,7 +102,7 @@ function addToCart() {
     const weight = currentWeightOptions.value.find((w) => w.id === selectedWeight.value)
     selectedTypeText = `${type?.name} - ${weight?.name}`
   } else {
-    selectedTypeText = 'Sản phẩm có sẵn'
+    selectedTypeText = categoryMap[product.value.category] ?? ''
   }
 
   cartStore.addItem({

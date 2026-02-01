@@ -15,9 +15,9 @@ const telegramConfig: TelegramConfig = {
 interface OrderItem {
   productName: string
   quantity: number
-  selectedType?: string
-  selectedWeight?: string
-  selectedVolume?: string
+  selectedType?: string | null
+  selectedWeight?: string | null
+  selectedVolume?: string | null
   totalPrice: number
 }
 
@@ -29,6 +29,9 @@ interface OrderInfo {
   customerNote?: string
   items: OrderItem[]
   totalAmount: number
+  subtotal?: number
+  shippingFee?: number
+  discount?: number
   createdAt: Date
 }
 
@@ -43,39 +46,73 @@ function formatPrice(price: number): string {
  * Format thông tin đơn hàng thành tin nhắn Telegram
  */
 function formatOrderMessage(order: OrderInfo): string {
+  // Format danh sách sản phẩm với thông tin chi tiết
   const itemsList = order.items
     .map((item, index) => {
-      let itemDetails = `   ${index + 1}. ${item.productName}`
-      if (item.selectedWeight) itemDetails += ` - ${item.selectedWeight}`
-      if (item.selectedVolume) itemDetails += ` - ${item.selectedVolume}`
-      itemDetails += `\n      SL: ${item.quantity} | Giá: ${formatPrice(item.totalPrice)}`
-      return itemDetails
+      let itemText = `   ${index + 1}. *${item.productName}*`
+
+      // Thêm thông tin tùy chọn nếu có
+      const options = []
+      if (item.selectedType) options.push(item.selectedType)
+      if (item.selectedWeight) options.push(item.selectedWeight)
+      if (item.selectedVolume) options.push(item.selectedVolume)
+
+      if (options.length > 0) {
+        itemText += `\n      ├ Loại: ${options.join(' • ')}`
+      }
+
+      itemText += `\n      ├ Số lượng: *${item.quantity}*`
+      itemText += `\n      └ Thành tiền: *${formatPrice(item.totalPrice)}*`
+
+      return itemText
     })
-    .join('\n')
+    .join('\n\n')
+
+  // Tính toán summary
+  const subtotal = order.subtotal || order.totalAmount
+  const shippingFee = order.shippingFee || 0
+  const discount = order.discount || 0
 
   const message = `
-🛒 *ĐƠN HÀNG MỚI* 🛒
-━━━━━━━━━━━━━━━━━━
+🔔 *ĐƠN HÀNG MỚI* 🔔
+━━━━━━━━━━━━━━━━━━━━━━━━━
 
-📋 *Mã đơn:* \`${order.orderId}\`
-📅 *Thời gian:* ${order.createdAt.toLocaleString('vi-VN')}
+📋 *Mã đơn hàng:* \`${order.orderId}\`
+📅 *Thời gian:* ${order.createdAt.toLocaleString('vi-VN', {
+    dateStyle: 'short',
+    timeStyle: 'short',
+  })}
 
+━━━━━━━━━━━━━━━━━━━━━━━━━
 👤 *THÔNG TIN KHÁCH HÀNG*
-━━━━━━━━━━━━━━━━━━
-• Họ tên: ${order.customerName}
-• SĐT: ${order.customerPhone}
-• Địa chỉ: ${order.customerAddress}
-${order.customerNote ? `• Ghi chú: ${order.customerNote}` : ''}
+━━━━━━━━━━━━━━━━━━━━━━━━━
 
-📦 *CHI TIẾT ĐƠN HÀNG*
-━━━━━━━━━━━━━━━━━━
+👨‍💼 Họ tên: *${order.customerName}*
+📞 Điện thoại: *${order.customerPhone}*
+📍 Địa chỉ: 
+   ${order.customerAddress.split(',').join('\n   ')}
+${order.customerNote ? `📝 Ghi chú: _${order.customerNote}_\n` : ''}
+━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 *CHI TIẾT SẢN PHẨM*
+━━━━━━━━━━━━━━━━━━━━━━━━━
+
 ${itemsList}
 
-💰 *TỔNG TIỀN: ${formatPrice(order.totalAmount)}*
-━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━━
+💰 *THANH TOÁN*
+━━━━━━━━━━━━━━━━━━━━━━━━━
+
+   Tạm tính:          ${formatPrice(subtotal)}${shippingFee > 0 ? `\n   Phí vận chuyển:    ${formatPrice(shippingFee)}` : ''}${discount > 0 ? `\n   Giảm giá:          -${formatPrice(discount)}` : ''}
+   ━━━━━━━━━━━━━━━━━━━
+   *TỔNG CỘNG:         ${formatPrice(order.totalAmount)}*
+
+💵 Thanh toán: *COD (Tiền mặt)*
+
+━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ Vui lòng xác nhận và xử lý đơn hàng!
 `
 
-  return message
+  return message.trim()
 }
 
 /**
