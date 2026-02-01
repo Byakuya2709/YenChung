@@ -38,6 +38,7 @@ export const useCartStore = defineStore('cart', () => {
     const existingItem = items.value.find(
       (i) =>
         i.productId === item.productId &&
+        i.productCategory === item.productCategory &&
         i.selectedType === item.selectedType &&
         i.selectedWeight === item.selectedWeight &&
         i.selectedVolume === item.selectedVolume &&

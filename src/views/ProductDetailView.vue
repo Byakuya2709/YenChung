@@ -105,6 +105,7 @@ function addToCart() {
     productId: product.value.id,
     productName: product.value.name,
     productImage: product.value.images[0],
+    productCategory: product.value.category, // Thêm category
     quantity: quantity.value,
     selectedType: selectedTypeText,
     selectedWeight: isCustomProduct.value ? selectedWeight.value : '',
@@ -138,6 +139,7 @@ function goToCheckout() {
     productId: product.value.id,
     productName: product.value.name,
     productImage: product.value.images[0],
+    productCategory: product.value.category, // Thêm category
     quantity: quantity.value,
     selectedType: selectedTypeText,
     selectedWeight: isCustomProduct.value ? selectedWeight.value : '',

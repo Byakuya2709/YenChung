@@ -21,6 +21,7 @@ import {
   CreditCard,
 } from 'lucide-vue-next'
 import PrimaryButton from '@/components/common/PrimaryButton.vue'
+import VietnamAddressSelector from '@/components/common/VietnamAddressSelector.vue'
 import type { OrderForm } from '@/types/order'
 import type { CartItem } from '@/types/cart'
 
@@ -37,20 +38,42 @@ const displayItems = computed(() => {
   return isDirectPurchase.value ? [directPurchaseItem.value!] : cartStore.items
 })
 
-// Kiểm tra xem có sản phẩm dạng unit (chai/lọ/hũ) không
-const hasUnitProduct = computed(() => {
-  return displayItems.value.some((item) => {
-    // Kiểm tra selectedVolume chứa "Chai", "Lọ", "Hũ"
-    const volume = item.selectedVolume?.toLowerCase() || ''
-    return volume.includes('chai') || volume.includes('lọ') || volume.includes('hũ')
+// Kiểm tra xem TẤT CẢ sản phẩm có phải là category = 'unit' không
+const isOnlyUnitProducts = computed(() => {
+  if (displayItems.value.length === 0) return false
+
+  // Fallback: Nếu productCategory không có, dùng productId để detect
+  return displayItems.value.every((item) => {
+    if (item.productCategory) {
+      return item.productCategory === 'unit'
+    }
+    // Fallback: check theo productId pattern
+    return item.productId?.startsWith('unit-')
   })
 })
 
-// Kiểm tra xem có sản phẩm dạng combo/custom (chén/tô) không
+// Kiểm tra xem có sản phẩm mixed (vừa unit vừa custom/combo) không
+const hasMixedProducts = computed(() => {
+  const hasUnit = displayItems.value.some((item) => {
+    if (item.productCategory) return item.productCategory === 'unit'
+    return item.productId?.startsWith('unit-')
+  })
+  const hasOther = displayItems.value.some((item) => {
+    if (item.productCategory) {
+      return item.productCategory === 'custom' || item.productCategory === 'combo'
+    }
+    return item.productId?.startsWith('custom-') || item.productId?.startsWith('combo-')
+  })
+  return hasUnit && hasOther
+})
+
+// Kiểm tra xem có sản phẩm local (custom/combo) không
 const hasLocalProduct = computed(() => {
   return displayItems.value.some((item) => {
-    const volume = item.selectedVolume?.toLowerCase() || ''
-    return volume.includes('chén') || volume.includes('tô')
+    if (item.productCategory) {
+      return item.productCategory === 'custom' || item.productCategory === 'combo'
+    }
+    return item.productId?.startsWith('custom-') || item.productId?.startsWith('combo-')
   })
 })
 
@@ -65,7 +88,7 @@ const shippingFee = computed(() => {
 })
 
 const discount = computed(() => {
-  return totalPrice.value > 1000000 ? Math.floor(totalPrice.value * 0.05) : 0
+  return totalPrice.value > 1000000 ? 0 : 0
 })
 
 const finalTotal = computed(() => {
@@ -89,6 +112,15 @@ const formData = ref<OrderForm>({
   note: '',
 })
 
+// Address selector cho sản phẩm Unit
+const addressParts = ref({
+  province: '',
+  district: '',
+  ward: '',
+})
+
+const streetAddress = ref('') // Số nhà, tên đường
+
 // Location cho sản phẩm local (chén/tô)
 const location = ref('')
 
@@ -96,7 +128,8 @@ const location = ref('')
 const formErrors = ref({
   customerName: '',
   phoneNumber: '',
-  address: '',
+  addressParts: '',
+  streetAddress: '',
   location: '',
 })
 
@@ -104,7 +137,8 @@ function validateForm(): boolean {
   formErrors.value = {
     customerName: '',
     phoneNumber: '',
-    address: '',
+    addressParts: '',
+    streetAddress: '',
     location: '',
   }
 
@@ -125,16 +159,17 @@ function validateForm(): boolean {
     isValid = false
   }
 
-  // Địa chỉ - BẮT BUỘC cho sản phẩm dạng unit (chai/lọ/hũ)
-  if (hasUnitProduct.value) {
-    if (!formData.value.address.trim()) {
-      formErrors.value.address = 'Vui lòng nhập địa chỉ giao hàng đầy đủ'
+  // Địa chỉ - BẮT BUỘC cho đơn hàng TOÀN BỘ là unit products
+  if (isOnlyUnitProducts.value) {
+    if (!addressParts.value.province || !addressParts.value.district || !addressParts.value.ward) {
+      formErrors.value.addressParts = 'Vui lòng chọn đầy đủ Tỉnh/Huyện/Xã'
+      isValid = false
+    }
+    if (!streetAddress.value.trim()) {
+      formErrors.value.streetAddress = 'Vui lòng nhập số nhà, tên đường'
       isValid = false
     }
   }
-
-  // Location - TÙY CHỌN cho sản phẩm local (chén/tô)
-  // Không validate vì không bắt buộc
 
   return isValid
 }
@@ -155,10 +190,20 @@ async function handleSubmit() {
     return
   }
 
-  // Xử lý address cho sản phẩm local
+  // Xử lý address
   const finalFormData = { ...formData.value }
-  if (hasLocalProduct.value && !hasUnitProduct.value) {
-    // Nếu chỉ có sản phẩm local, dùng địa chỉ mặc định + location
+
+  if (isOnlyUnitProducts.value) {
+    // Đơn hàng TOÀN BỘ Unit: Ghép địa chỉ đầy đủ
+    const addressArray = [
+      streetAddress.value.trim(),
+      addressParts.value.ward,
+      addressParts.value.district,
+      addressParts.value.province,
+    ].filter(Boolean)
+    finalFormData.address = addressArray.join(', ')
+  } else if (hasLocalProduct.value) {
+    // Đơn hàng Local hoặc Mixed: Dùng địa chỉ mặc định + location
     const defaultAddress = 'Tam Bình, Vĩnh Long'
     finalFormData.address = location.value.trim()
       ? `${location.value}, ${defaultAddress}`
@@ -308,33 +353,55 @@ async function handleSubmit() {
               </p>
             </div>
 
-            <!-- Địa chỉ - CHỈ hiển thị cho sản phẩm Unit (chai/lọ/hũ) -->
-            <div v-if="hasUnitProduct">
-              <label class="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-700">
+            <!-- Địa chỉ - CHỈ hiển thị cho đơn hàng TOÀN BỘ unit products -->
+            <div v-if="isOnlyUnitProducts">
+              <label class="mb-3 flex items-center gap-2 text-sm font-semibold text-gray-700">
                 <MapPin class="h-4 w-4" />
                 Địa chỉ giao hàng
                 <span class="text-red-500">*</span>
               </label>
-              <textarea
-                v-model="formData.address"
-                rows="3"
-                class="w-full resize-none rounded-xl border border-gray-300 px-4 py-3 transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
-                :class="
-                  formErrors.address ? 'border-red-300 focus:border-red-500 focus:ring-red-100' : ''
-                "
-                placeholder="Số nhà, tên đường, phường/xã, quận/huyện, tỉnh/thành phố"
-              ></textarea>
+
+              <!-- Selector Tỉnh/Huyện/Xã -->
+              <VietnamAddressSelector v-model="addressParts" :error="formErrors.addressParts" />
+
+              <!-- Error message cho address selector -->
               <p
-                v-if="formErrors.address"
-                class="mt-1.5 flex items-center gap-1 text-xs text-red-600"
+                v-if="formErrors.addressParts"
+                class="mt-2 flex items-center gap-1 text-xs text-red-600"
               >
                 <AlertCircle class="h-3.5 w-3.5" />
-                {{ formErrors.address }}
+                {{ formErrors.addressParts }}
               </p>
+
+              <!-- Số nhà, tên đường -->
+              <div class="mt-4">
+                <label class="mb-2 block text-sm font-semibold text-gray-700">
+                  Số nhà, tên đường
+                  <span class="text-red-500">*</span>
+                </label>
+                <input
+                  v-model="streetAddress"
+                  type="text"
+                  class="w-full rounded-xl border border-gray-300 px-4 py-3 transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
+                  :class="
+                    formErrors.streetAddress
+                      ? 'border-red-300 focus:border-red-500 focus:ring-red-100'
+                      : ''
+                  "
+                  placeholder="Ví dụ: 123 Đường Lê Lợi"
+                />
+                <p
+                  v-if="formErrors.streetAddress"
+                  class="mt-1.5 flex items-center gap-1 text-xs text-red-600"
+                >
+                  <AlertCircle class="h-3.5 w-3.5" />
+                  {{ formErrors.streetAddress }}
+                </p>
+              </div>
             </div>
 
-            <!-- Location - CHỈ hiển thị cho sản phẩm Local (chén/tô) -->
-            <div v-if="hasLocalProduct && !hasUnitProduct">
+            <!-- Location - CHỈ hiển thị cho đơn hàng TOÀN LOCAL (không có unit) -->
+            <div v-if="hasLocalProduct && !isOnlyUnitProducts && !hasMixedProducts">
               <label class="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-700">
                 <MapPin class="h-4 w-4" />
                 Vị trí cụ thể (tùy chọn)
@@ -351,8 +418,26 @@ async function handleSubmit() {
               </p>
             </div>
 
-            <!-- Note về hạn sử dụng ngắn -->
-            <div class="rounded-xl border-2 border-amber-200 bg-amber-50 p-4">
+            <!-- Note cho đơn hàng MIXED -->
+            <div v-if="hasMixedProducts" class="rounded-xl border-2 border-blue-200 bg-blue-50 p-4">
+              <div class="flex gap-3">
+                <AlertCircle class="h-5 w-5 flex-shrink-0 text-blue-600" />
+                <div>
+                  <h4 class="font-semibold text-blue-900">Lưu ý về đơn hàng</h4>
+                  <p class="mt-1 text-sm text-blue-800">
+                    Đơn hàng của bạn có cả sản phẩm đóng chai và sản phẩm chưng tươi. Sản phẩm chưng
+                    tươi chỉ giao trong khu vực Tam Bình, Vĩnh Long. Chúng tôi sẽ liên hệ xác nhận
+                    chi tiết giao hàng.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Note về hạn sử dụng ngắn - CHỈ hiển thị cho local/mixed -->
+            <div
+              v-if="hasLocalProduct"
+              class="rounded-xl border-2 border-amber-200 bg-amber-50 p-4"
+            >
               <div class="flex gap-3">
                 <AlertCircle class="h-5 w-5 flex-shrink-0 text-amber-600" />
                 <div>

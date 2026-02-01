@@ -3,6 +3,7 @@ export interface CartItem {
   productId: string
   productName: string
   productImage: string
+  productCategory?: 'custom' | 'combo' | 'unit' // Thêm category
   quantity: number
   selectedType: string | null
   selectedWeight: string | null

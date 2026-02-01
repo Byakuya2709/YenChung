@@ -21,7 +21,7 @@ const shippingFee = computed(() => {
 })
 
 const discount = computed(() => {
-  return cartStore.totalPrice > 1000000 ? Math.floor(cartStore.totalPrice * 0.05) : 0
+  return cartStore.totalPrice > 1000000 ? 0 : 0
 })
 
 const finalTotal = computed(() => {
