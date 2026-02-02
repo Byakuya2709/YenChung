@@ -162,7 +162,7 @@ function scrollToProducts() {
               <ChevronRight class="h-5 w-5 transition-transform group-hover:translate-x-1" />
             </button>
             <a
-              href="#contact"
+              href="/contact"
               class="flex items-center justify-center gap-2 rounded-full border-2 border-gray-900 bg-white px-8 py-4 text-base font-bold text-gray-900 transition-all hover:bg-gray-900 hover:text-white sm:text-lg"
             >
               Liên Hệ Tư Vấn

@@ -12,6 +12,8 @@ import AppFooter from '@/components/layout/AppFooter.vue'
     <main class="relative flex-1 pb-20 sm:pb-0">
       <RouterView />
     </main>
-    <!-- <AppFooter /> -->
+    <div class="hidden md:block">
+      <AppFooter />
+    </div>
   </div>
 </template>

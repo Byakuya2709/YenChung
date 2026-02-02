@@ -39,7 +39,7 @@ const socialLinks = [
             <li><a href="/#products" class="text-gray-600 hover:text-primary">Sản Phẩm</a></li>
             <li><a href="/#about" class="text-gray-600 hover:text-primary">Giới Thiệu</a></li>
             <li><a href="/cart" class="text-gray-600 hover:text-primary">Giỏ Hàng</a></li>
-            <li><a href="/#contact" class="text-gray-600 hover:text-primary">Liên Hệ</a></li>
+            <li><a href="/contact" class="text-gray-600 hover:text-primary">Tư Vấn</a></li>
           </ul>
         </div>
 
