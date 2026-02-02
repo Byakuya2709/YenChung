@@ -5,6 +5,7 @@ import CartView from '@/views/CartView.vue'
 import CheckoutView from '@/views/CheckoutView.vue'
 import OrderSuccessView from '@/views/OrderSuccessView.vue'
 import ContactView from '@/views/ContactView.vue'
+import OrderTrackingView from '@/views/OrderTrackingView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -38,6 +39,12 @@ const router = createRouter({
       name: 'order-success',
       component: OrderSuccessView,
       meta: { title: 'Đặt Hàng Thành Công' },
+    },
+    {
+      path: '/orders/track',
+      name: 'order-tracking',
+      component: OrderTrackingView,
+      meta: { title: 'Tra Cứu Đơn Hàng' },
     },
     {
       path: '/contact',

@@ -1,17 +1,47 @@
 <!-- filepath: src/views/HomeView.vue -->
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { mockCustomProduct, mockComboProducts, mockUnitProducts } from '@/mock/products'
+import { ref, onMounted } from 'vue'
+import { getProductsByCategory } from '@/services/product.service'
 import HeroSection from '@/components/features/HeroSection.vue'
 import ProductCarousel from '@/components/common/ProductCarousel.vue'
 import { Sparkles, Package, Box, Phone, Mail, CheckCircle, Users, Shield } from 'lucide-vue-next'
 import type { Product } from '@/types/product'
 
 // Nhóm sản phẩm theo category
-const customProducts = ref<Product[]>(mockCustomProduct)
-const comboProducts = ref<Product[]>(mockComboProducts)
-const unitProducts = ref<Product[]>(mockUnitProducts)
+const customProducts = ref<Product[]>([])
+const comboProducts = ref<Product[]>([])
+const unitProducts = ref<Product[]>([])
+const isLoading = ref(true)
+
+// Load products từ Supabase
+onMounted(async () => {
+  try {
+    const [custom, combo, unit] = await Promise.all([
+      getProductsByCategory('custom'),
+      getProductsByCategory('combo'),
+      getProductsByCategory('unit'),
+    ])
+
+    // Convert Supabase format to Product type
+    const convertToProduct = (item: any): Product => ({
+      id: item.id,
+      name: item.name,
+      description: item.description || '',
+      category: item.category,
+      basePrice: item.base_price,
+      images: item.images,
+    })
+
+    customProducts.value = custom.map(convertToProduct)
+    comboProducts.value = combo.map(convertToProduct)
+    unitProducts.value = unit.map(convertToProduct)
+  } catch (error) {
+    console.error('Error loading products:', error)
+  } finally {
+    isLoading.value = false
+  }
+})
 
 // Các lợi ích chính
 const benefits = [

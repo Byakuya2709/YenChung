@@ -4,8 +4,8 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCartStore } from '@/stores/cart'
-import { useOrder } from '@/composables/useOrder'
 import { sendOrderNotification, type OrderInfo } from '@/services/telegram'
+import { createOrder } from '@/services/order.service'
 import {
   ArrowLeft,
   User,
@@ -27,11 +27,14 @@ import type { CartItem } from '@/types/cart'
 
 const router = useRouter()
 const cartStore = useCartStore()
-const { isSubmitting, orderError, createOrder, createDirectOrder } = useOrder()
 
 // State cho "mua ngay"
 const directPurchaseItem = ref<CartItem | null>(null)
 const isDirectPurchase = computed(() => directPurchaseItem.value !== null)
+
+// State cho submit
+const isSubmitting = ref(false)
+const orderError = ref('')
 
 // Items hiển thị: nếu là "mua ngay" thì dùng item đó, không thì dùng giỏ hàng
 const displayItems = computed(() => {
@@ -210,23 +213,31 @@ async function handleSubmit() {
       : defaultAddress
   }
 
-  let order
+  isSubmitting.value = true
+  orderError.value = ''
 
-  if (isDirectPurchase.value) {
-    // Mua ngay - chỉ mua 1 sản phẩm, không xóa giỏ hàng
-    order = await createDirectOrder(finalFormData, directPurchaseItem.value!)
-  } else {
-    // Checkout từ giỏ hàng - mua tất cả items trong giỏ
-    order = await createOrder(finalFormData, cartStore.items)
-  }
+  try {
+    // Tạo đơn hàng trong Supabase
+    const order = await createOrder({
+      customerName: formData.value.customerName,
+      customerPhone: formData.value.phoneNumber,
+      customerEmail: '',
+      shippingAddress: finalFormData.address,
+      location: location.value || undefined,
+      customerNote: formData.value.note || undefined,
+      items: displayItems.value,
+      subtotal: totalPrice.value,
+      shippingFee: shippingFee.value,
+      discount: discount.value,
+      total: finalTotal.value,
+    })
 
-  if (order) {
     // Gửi thông báo Telegram với thông tin đầy đủ
     const telegramOrder: OrderInfo = {
       orderId: order.id,
       customerName: formData.value.customerName,
       customerPhone: formData.value.phoneNumber,
-      customerAddress: finalFormData.address, // Dùng địa chỉ đã format
+      customerAddress: finalFormData.address,
       customerNote: formData.value.note || undefined,
       items: displayItems.value.map((item) => ({
         productName: item.productName,
@@ -258,6 +269,14 @@ async function handleSubmit() {
 
     // Chuyển đến trang thành công
     router.push({
+      name: 'order-success',
+      params: { orderId: order.id },
+    })
+  } catch (error) {
+    console.error('Error creating order:', error)
+    orderError.value = 'Đã xảy ra lỗi khi tạo đơn hàng. Vui lòng thử lại sau.'
+  } finally {
+    isSubmitting.value = falseuter.push({
       name: 'order-success',
       params: { orderId: order.id },
     })

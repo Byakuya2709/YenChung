@@ -13,8 +13,9 @@ const isScrolled = ref(false)
 
 const navigation = [
   { name: 'Sản Phẩm', href: '/#products' },
+  { name: 'Tra Cứu', href: '/orders/track' },
   { name: 'Giới Thiệu', href: '/#about' },
-  { name: 'Liên Hệ', href: '/contact' },
+  { name: 'Tư Vấn', href: '/contact' },
 ]
 
 const handleScroll = () => {

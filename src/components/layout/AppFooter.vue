@@ -37,6 +37,9 @@ const socialLinks = [
           <h4 class="mb-4 font-semibold text-gray-900">Liên Kết Nhanh</h4>
           <ul class="space-y-2 text-sm">
             <li><a href="/#products" class="text-gray-600 hover:text-primary">Sản Phẩm</a></li>
+            <li>
+              <a href="/orders/track" class="text-gray-600 hover:text-primary">Tra Cứu Đơn Hàng</a>
+            </li>
             <li><a href="/#about" class="text-gray-600 hover:text-primary">Giới Thiệu</a></li>
             <li><a href="/cart" class="text-gray-600 hover:text-primary">Giỏ Hàng</a></li>
             <li><a href="/contact" class="text-gray-600 hover:text-primary">Tư Vấn</a></li>

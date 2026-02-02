@@ -4,8 +4,9 @@ import { useRouter, useRoute } from 'vue-router'
 import { useOrder } from '@/composables/useOrder'
 import { useCartStore } from '@/stores/cart'
 import { useProductPrice } from '@/composables/useProductPrice'
-import { allProducts } from '@/mock/products'
+import { getProductById, getProductOptions } from '@/services/product.service'
 import type { Product, CustomProduct } from '@/types/product'
+import type { Database } from '@/types/database.types'
 
 import QuantityCounter from '@/components/common/QuantityCounter.vue'
 import PrimaryButton from '@/components/common/PrimaryButton.vue'
@@ -13,7 +14,18 @@ import ProductTypeSelector from '@/components/features/ProductTypeSelector.vue'
 import WeightSelector from '@/components/features/WeightSelector.vue'
 import VolumeSelector from '@/components/features/VolumeSelector.vue'
 import PackageSelector from '@/components/features/PackageSelector.vue'
-import { ShoppingCart, ChevronRight, Shield, Sparkles, Package, Star, Check } from 'lucide-vue-next'
+import {
+  ShoppingCart,
+  ChevronRight,
+  Shield,
+  Sparkles,
+  Package,
+  Star,
+  Check,
+  ArrowLeft,
+} from 'lucide-vue-next'
+
+type ProductOption = Database['public']['Tables']['product_options']['Row']
 
 const router = useRouter()
 const route = useRoute()
@@ -21,7 +33,10 @@ const cartStore = useCartStore()
 const { createDirectOrder } = useOrder()
 
 // State
+// Biến product lưu thông tin sản phẩm hiện tại, khởi tạo là null
 const product = ref<Product | null>(null)
+const productOptions = ref<ProductOption[]>([])
+const isLoading = ref(true)
 const quantity = ref(1)
 
 // States chỉ dùng cho custom product
@@ -36,24 +51,82 @@ const customProduct = computed(() =>
   isCustomProduct.value ? (product.value as CustomProduct) : null,
 )
 
-// Load sản phẩm từ route params
-onMounted(() => {
+// Load sản phẩm từ Supabase
+onMounted(async () => {
   const productId = route.params.id as string
-  const foundProduct = allProducts.find((p) => p.id === productId)
 
-  if (foundProduct) {
-    product.value = foundProduct
+  try {
+    const foundProduct = await getProductById(productId)
 
-    // Nếu là custom product, khởi tạo các giá trị mặc định
-    if (foundProduct.category === 'custom') {
-      const custom = foundProduct as CustomProduct
-      selectedType.value = custom.types[0]?.id || ''
-      selectedWeight.value = custom.types[0]?.weightOptions[0]?.id || ''
-      selectedVolume.value = custom.volumeOptions?.[0] || ''
+    if (foundProduct) {
+      // Convert Supabase product to Product type
+      product.value = {
+        id: foundProduct.id,
+        name: foundProduct.name,
+        description: foundProduct.description || '',
+        category: foundProduct.category as 'custom' | 'combo' | 'unit',
+        basePrice: foundProduct.base_price,
+        images: foundProduct.images,
+      } as Product
+
+      // Nếu là custom product, load options
+      if (foundProduct.category === 'custom') {
+        const options = await getProductOptions(productId)
+        productOptions.value = options
+
+        // Build types từ options
+        const types: any[] = []
+        const typeOptions = options.filter((o) => o.option_type === 'type')
+
+        for (const typeOption of typeOptions) {
+          const weightOptions = options
+            .filter((o) => o.option_type === 'weight' && o.metadata?.typeId === typeOption.value)
+            .map((w) => ({
+              id: w.value,
+              name: w.label,
+              extra: w.additional_price,
+              extraText:
+                w.metadata?.extraText || `+ ${w.additional_price.toLocaleString('vi-VN')}đ`,
+            }))
+
+          types.push({
+            id: typeOption.value,
+            name: typeOption.label,
+            price: typeOption.metadata?.price || 0,
+            priceText: typeOption.metadata?.priceText || '',
+            weightOptions,
+          })
+        }
+
+        const volumeOptions = options.filter((o) => o.option_type === 'volume').map((v) => v.label)
+
+        const packageOptions = options
+          .filter((o) => o.option_type === 'package')
+          .map((p) => ({
+            id: parseInt(p.value),
+            name: p.label,
+            image: p.metadata?.image || null,
+          }))
+
+        ;(product.value as CustomProduct).types = types
+        ;(product.value as CustomProduct).volumeOptions = volumeOptions
+        ;(product.value as CustomProduct).packageOptions = packageOptions
+
+        // Khởi tạo giá trị mặc định
+        selectedType.value = types[0]?.id || ''
+        selectedWeight.value = types[0]?.weightOptions[0]?.id || ''
+        selectedVolume.value = volumeOptions[0] || ''
+        selectedPackage.value = packageOptions[0]?.id ?? null
+      }
+    } else {
+      // Redirect về home nếu không tìm thấy
+      router.push('/')
     }
-  } else {
-    // Redirect về home nếu không tìm thấy
+  } catch (error) {
+    console.error('Error loading product:', error)
     router.push('/')
+  } finally {
+    isLoading.value = false
   }
 })
 
@@ -85,6 +158,7 @@ const { unitPrice, totalPrice, formattedPrice } = useProductPrice(
   quantity,
 )
 
+// Map category sang text hiển thị
 const categoryMap: Record<string, string> = {
   combo: 'Combo đủ đầy',
   unit: 'Yến thô',
@@ -135,7 +209,7 @@ function goToCheckout() {
     const weight = currentWeightOptions.value.find((w) => w.id === selectedWeight.value)
     selectedTypeText = `${type?.name} - ${weight?.name}`
   } else {
-    selectedTypeText = 'Sản phẩm có sẵn'
+    selectedTypeText = categoryMap[product.value.category] ?? ''
   }
 
   // Tạo CartItem từ sản phẩm hiện tại
@@ -193,7 +267,16 @@ function goToCheckout() {
       </div>
     </header>
 
-    <div class="container relative mx-auto px-4 py-4 sm:py-4 lg:py-6">
+    <!-- Loading State -->
+    <div v-if="isLoading" class="container relative mx-auto px-4 py-20 text-center">
+      <div
+        class="inline-block h-12 w-12 animate-spin rounded-full border-4 border-red-600 border-t-transparent"
+      ></div>
+      <p class="mt-4 text-gray-600">Đang tải sản phẩm...</p>
+    </div>
+
+    <!-- Content - Only show when loaded -->
+    <div v-else class="container relative mx-auto px-4 py-4 sm:py-4 lg:py-6">
       <!-- Breadcrumb - Modern -->
 
       <div class="grid gap-6 lg:grid-cols-2 lg:gap-12">
@@ -430,10 +513,10 @@ function goToCheckout() {
         </PrimaryButton>
       </div>
     </div>
-
-    <!-- Mobile Bottom Spacer -->
-    <div class="h-24 sm:hidden"></div>
   </div>
+
+  <!-- Mobile Bottom Spacer -->
+  <div class="h-24 sm:hidden"></div>
 </template>
 
 <style scoped>
