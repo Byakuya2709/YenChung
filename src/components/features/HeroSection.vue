@@ -21,7 +21,7 @@ onMounted(() => {
 })
 
 function scrollToProducts() {
-  document.getElementById('custom-products')?.scrollIntoView({ behavior: 'smooth' })
+  document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' })
 }
 </script>
 

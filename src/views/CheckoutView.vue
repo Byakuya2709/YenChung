@@ -464,7 +464,7 @@ async function handleSubmit() {
                 v-model="formData.note"
                 rows="2"
                 class="w-full resize-none rounded-xl border border-gray-300 px-4 py-3 transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
-                placeholder="Ví dụ: Giao hàng buổi chiều, gọi trước 15 phút..."
+                placeholder="Ví dụ: Ít đường, không bỏ táo..."
               ></textarea>
             </div>
           </div>

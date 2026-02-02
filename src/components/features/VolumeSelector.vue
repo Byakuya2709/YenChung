@@ -19,7 +19,7 @@ const emit = defineEmits<{
       class="mb-4 h-px w-full bg-[#AC7F5E]/20 shadow-[0_0_19px_white,0_10px_10px_rgba(255,255,255,0.25)] backdrop-blur-[2px]"
     ></div> -->
 
-    <h3 class="mb-3 text-[22px] font-bold leading-7 -tracking-[0.26px] text-white/95">Thể Tích:</h3>
+    <h3 class="mb-3 text-2xl font-bold leading-7 -tracking-[0.26px] text-white/95">Trọng lượng:</h3>
 
     <div
       class="flex items-center gap-0 rounded-full border border-gray-600/50 bg-white/10 p-0.5 backdrop-blur-md"

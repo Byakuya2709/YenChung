@@ -42,7 +42,7 @@ const emit = defineEmits<{
           <div class="flex-1">
             <div class="flex items-center justify-between">
               <div
-                class="text-[17px] leading-[22px] -tracking-[0.43px]"
+                class="text-lg leading-[22px] -tracking-[0.43px]"
                 :class="
                   modelValue === weight.id
                     ? 'font-semibold text-[#880912]'
@@ -60,7 +60,7 @@ const emit = defineEmits<{
             </div>
             <div
               v-if="weight.extraText"
-              class="mt-1 text-[13px] leading-[18px] -tracking-[0.08px]"
+              class="mt-1 text-sm leading-[18px] -tracking-[0.08px]"
               :class="modelValue === weight.id ? 'text-black' : 'text-gray-300'"
             >
               {{ weight.extraText }}

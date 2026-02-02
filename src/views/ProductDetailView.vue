@@ -13,7 +13,7 @@ import ProductTypeSelector from '@/components/features/ProductTypeSelector.vue'
 import WeightSelector from '@/components/features/WeightSelector.vue'
 import VolumeSelector from '@/components/features/VolumeSelector.vue'
 import PackageSelector from '@/components/features/PackageSelector.vue'
-import { ShoppingCart } from 'lucide-vue-next'
+import { ShoppingCart, ChevronRight, Shield, Sparkles, Package, Star, Check } from 'lucide-vue-next'
 
 const router = useRouter()
 const route = useRoute()
@@ -163,184 +163,290 @@ function goToCheckout() {
 </script>
 
 <template>
-  <div v-if="!product" class="flex min-h-screen items-center justify-center bg-gray-50">
+  <div
+    v-if="!product"
+    class="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 to-white"
+  >
     <div class="text-center">
-      <div class="mb-4 text-4xl">⏳</div>
+      <div class="mb-4 animate-spin text-4xl">⏳</div>
       <p class="text-gray-600">Đang tải sản phẩm...</p>
     </div>
   </div>
 
-  <div v-else class="min-h-screen bg-gray-50 py-2">
-    <div class="container mx-auto px-4">
-      <!-- Breadcrumb -->
-      <nav class="mb-6 text-sm text-gray-600">
-        <router-link to="/" class="hover:text-primary">Trang chủ</router-link>
-        <span class="mx-2">/</span>
-        <span class="text-gray-900">Chi tiết sản phẩm</span>
-      </nav>
+  <div v-else class="min-h-screen bg-gradient-to-br from-slate-50 to-white">
+    <!-- Background Pattern -->
+    <div
+      class="absolute inset-0 bg-[linear-gradient(to_right,#8882_1px,transparent_1px),linear-gradient(to_bottom,#8882_1px,transparent_1px)] bg-[size:64px_64px] opacity-20"
+    ></div>
 
-      <div class="grid gap-8 lg:grid-cols-2">
-        <!-- Left Column: 3D Stacked Images - Fixed Container -->
-        <div class="flex items-start justify-center lg:sticky lg:top-10 lg:h-[600px]">
+    <header class="sticky top-0 z-40 border-b border-gray-200/50 bg-white/80 backdrop-blur-xl">
+      <div class="container mx-auto flex items-center justify-between px-4 py-4 sm:px-6">
+        <button
+          @click="router.back()"
+          class="flex items-center gap-2 rounded-xl px-3 py-2 text-gray-700 transition-all hover:bg-gray-100 active:scale-95"
+        >
+          <ArrowLeft class="h-5 w-5" />
+          <span class="font-medium">Quay lại</span>
+        </button>
+        <h1 class="text-lg font-bold text-gray-900">Chi tiết sản phẩm</h1>
+        <div class="w-20"></div>
+      </div>
+    </header>
+
+    <div class="container relative mx-auto px-4 py-4 sm:py-4 lg:py-6">
+      <!-- Breadcrumb - Modern -->
+
+      <div class="grid gap-6 lg:grid-cols-2 lg:gap-12">
+        <!-- Left Column: Product Image -->
+        <div class="lg:sticky lg:top-24 lg:h-fit">
+          <!-- Main Image Card -->
           <div
-            class="relative h-[300px] w-[300px] sm:h-[350px] sm:w-[350px] lg:h-[500px] lg:w-[500px] border-r border-gray bg-white"
+            class="relative overflow-hidden rounded-3xl bg-white shadow-2xl ring-1 ring-gray-900/5"
           >
+            <!-- Background Glow -->
             <div
-              v-for="layer in displayLayers"
-              :key="layer"
-              class="absolute left-1/2 top-1/2 w-[80%] transition-all duration-500 ease-out will-change-transform"
-              :class="{ 'animate-pop-in': layer === 1 }"
-              :style="{
-                // --- LOGIC VỊ TRÍ & SCALE ---
-                transform: `
-          translate(-50%, -50%) 
-          translateX(${(layer - 1) * 50 - (displayLayers - 1) * 25}px) 
-          scale(${1 - (layer - 1) * 0.15})
-        `,
+              class="absolute inset-0 -z-10 translate-y-4 rounded-3xl bg-gradient-to-br from-red-400/20 to-orange-400/20 blur-2xl"
+            ></div>
 
-                // --- LOGIC CHIỀU SÂU ---
-                zIndex: 100 - layer,
-                opacity: 1 - (layer - 1) * 0.25,
-                filter: layer === 1 ? 'none' : `blur(${(layer - 1) * 1}px) grayscale(20%)`,
-
-                // --- CẤU HÌNH KHÁC ---
-                aspectRatio: '1 / 1',
-                pointerEvents: layer === 1 ? 'auto' : 'none',
-              }"
-            >
-              <img
-                v-if="product"
-                :src="product.images[0]"
-                class="h-full w-full object-contain drop-shadow-[0_15px_15px_rgba(0,0,0,0.15)]"
-              />
-            </div>
-
-            <div
-              v-if="hasMoreLayers"
-              class="absolute -bottom-3 -right-3 lg:-right-8 lg:top-20 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white shadow-2xl sm:h-16 sm:w-16"
-            >
-              <div class="text-center">
-                <div class="text-xl font-bold sm:text-2xl">{{ quantity }}</div>
-                <div class="text-[9px] sm:text-[10px]">hủ</div>
+            <!-- 3D Stack Display -->
+            <div class="relative aspect-square p-8">
+              <div
+                v-for="layer in displayLayers"
+                :key="layer"
+                class="absolute left-1/2 top-1/2 w-[70%] transition-all duration-500 ease-out"
+                :style="{
+                  transform: `
+                    translate(-50%, -50%) 
+                    translateX(${(layer - 1) * 40 - (displayLayers - 1) * 20}px) 
+                    scale(${1 - (layer - 1) * 0.12})
+                  `,
+                  zIndex: 10 - layer,
+                  opacity: 1 - (layer - 1) * 0.2,
+                  filter: layer === 1 ? 'none' : `blur(${(layer - 1) * 0.8}px)`,
+                }"
+              >
+                <img
+                  v-if="product"
+                  :src="product.images[0]"
+                  :alt="product.name"
+                  class="h-full w-full object-contain drop-shadow-2xl"
+                />
               </div>
+
+              <!-- Quantity Badge -->
+              <div
+                v-if="quantity > 1"
+                class="absolute bottom-6 right-6 z-50 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-red-600 to-orange-500 text-white shadow-xl"
+              >
+                <div class="text-center">
+                  <div class="text-2xl font-bold">{{ quantity }}</div>
+                  <div class="text-[10px] font-medium">sản phẩm</div>
+                </div>
+              </div>
+
+              <!-- Quality Badge -->
+              <div
+                class="absolute left-6 top-6 z-10 rounded-xl bg-white/95 px-4 py-2 shadow-lg backdrop-blur-sm"
+              >
+                <div class="flex items-center gap-2">
+                  <Star class="h-5 w-5 fill-yellow-400 text-yellow-400" />
+                  <span class="text-sm font-bold text-gray-900">Chất lượng</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Trust Badges -->
+          <div class="mt-6 grid grid-cols-3 gap-3">
+            <div class="rounded-xl bg-white p-3 text-center shadow-md ring-1 ring-gray-900/5">
+              <Shield class="mx-auto mb-2 h-6 w-6 text-red-600" />
+              <p class="text-xs font-semibold text-gray-900">100% Tự Nhiên</p>
+            </div>
+            <div
+              v-if="product.category === `custom`"
+              class="rounded-xl bg-white p-3 text-center shadow-md ring-1 ring-gray-900/5"
+            >
+              <Package class="mx-auto mb-2 h-6 w-6 text-blue-600" />
+              <p class="text-xs font-semibold text-gray-900">Sản phẩm chưng nóng</p>
+            </div>
+            <div
+              v-if="product.category === `unit`"
+              class="rounded-xl bg-white p-3 text-center shadow-md ring-1 ring-gray-900/5"
+            >
+              <Package class="mx-auto mb-2 h-6 w-6 text-blue-600" />
+              <p class="text-xs font-semibold text-gray-900">Giao hàng toàn quốc</p>
+            </div>
+            <div class="rounded-xl bg-white p-3 text-center shadow-md ring-1 ring-gray-900/5">
+              <Check class="mx-auto mb-2 h-6 w-6 text-green-600" />
+              <p class="text-xs font-semibold text-gray-900">Không chất bảo quản</p>
             </div>
           </div>
         </div>
 
-        <!-- Right Column: Product Options -->
-        <div class="space-y-4 rounded-2xl bg-pattern-red p-4 shadow-lg sm:space-y-6 sm:p-6">
-          <!-- Product Info -->
-          <div class="rounded-3xl border border-white-600 p-6 sm:p-10">
-            <div>
-              <h1 class="mb-2 text-2xl font-bold text-white sm:text-3xl">{{ product?.name }}</h1>
-              <p class="text-sm text-white sm:text-base">{{ product?.description }}</p>
-            </div>
-
-            <!-- Quantity Counter -->
+        <!-- Right Column: Product Details -->
+        <div class="space-y-6">
+          <!-- Product Info Card -->
+          <div class="rounded-2xl bg-pattern-red p-6 shadow-xl ring-1 ring-gray-900/5 sm:p-8">
+            <!-- Category Badge -->
             <div
-              class="mt-5 flex flex-row items-start gap-4 sm:flex-row sm:items-center sm:justify-between"
+              class="mb-4 inline-flex items-center gap-2 rounded-full border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700"
             >
-              <h3 class="text-3xl font-bold text-white sm:text-4xl">{{ formattedPrice }}</h3>
-              <QuantityCounter v-model="quantity" />
+              <Sparkles class="h-4 w-4" />
+              <span>{{
+                product?.category === 'custom'
+                  ? 'Tùy Chỉnh'
+                  : product?.category === 'combo'
+                    ? 'Combo Tiết Kiệm'
+                    : 'Yến Thô'
+              }}</span>
+            </div>
+
+            <!-- Product Title & Description -->
+            <h1 class="mb-3 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+              {{ product?.name }}
+            </h1>
+            <p class="mb-6 text-base leading-relaxed text-white">
+              {{ product?.description }}
+            </p>
+
+            <!-- Price & Quantity -->
+            <div
+              class="flex flex-row gap-4 rounded-xl bg-pattern-red p-5 items-center justify-between"
+            >
+              <div>
+                <p class="mb-1 text-base font-medium text-white">Giá sản phẩm</p>
+                <p class="text-3xl font-extrabold text-yellow-500 sm:text-4xl">
+                  {{ formattedPrice }}
+                </p>
+              </div>
+              <div class="flex items-center gap-3 flex-row md:flex-col">
+                <p class="hidden md:block text-base font-medium text-white">Số lượng:</p>
+                <QuantityCounter v-model="quantity" />
+              </div>
             </div>
           </div>
 
-          <!-- Product Type Selection Card - Chỉ hiển thị cho custom product -->
-          <div
-            v-if="isCustomProduct && customProduct"
-            class="rounded-2xl border border-gray-200 p-4 shadow-sm sm:p-6"
-          >
-            <div class="mb-4">
-              <h3 class="text-lg font-bold text-white sm:text-xl">Lượng Yến</h3>
-              <p class="text-xs text-accent sm:text-sm">Chọn lượng yến mong muốn</p>
+          <!-- Custom Product Options -->
+          <div v-if="isCustomProduct && customProduct" class="space-y-4">
+            <!-- Type & Weight Selection -->
+            <div class="rounded-2xl bg-pattern-red p-6 shadow-xl ring-1 ring-gray-900/5">
+              <div class="mb-5 flex items-center justify-between">
+                <div>
+                  <h3 class="text-2xl font-bold text-white">Lượng Yến</h3>
+                  <p class="text-base text-yellow-400">Chọn lượng yến mong muốn</p>
+                </div>
+                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-red-100">
+                  <Sparkles class="h-5 w-5 text-red-600" />
+                </div>
+              </div>
+
+              <div class="space-y-4">
+                <ProductTypeSelector v-model="selectedType" :types="customProduct.types" />
+                <div class="h-px bg-gray-200"></div>
+                <WeightSelector v-model="selectedWeight" :weights="currentWeightOptions" />
+              </div>
             </div>
 
-            <div class="space-y-4">
-              <ProductTypeSelector v-model="selectedType" :types="customProduct.types" />
+            <!-- Volume Selection -->
+            <div class="rounded-2xl bg-pattern-red p-6 shadow-xl ring-1 ring-gray-900/5">
+              <VolumeSelector v-model="selectedVolume" :volumes="customProduct.volumeOptions" />
+            </div>
 
-              <div class="h-px bg-gray-200"></div>
-
-              <WeightSelector v-model="selectedWeight" :weights="currentWeightOptions" />
+            <!-- Package Selection -->
+            <div class="rounded-2xl bg-pattern-red p-6 shadow-xl ring-1 ring-gray-900/5">
+              <PackageSelector v-model="selectedPackage" :packages="customProduct.packageOptions" />
             </div>
           </div>
 
-          <!-- Volume Selection - Chỉ hiển thị cho custom product -->
-          <div
-            v-if="isCustomProduct && customProduct"
-            class="rounded-2xl border border-gray-200 p-4 shadow-sm sm:p-6"
-          >
-            <VolumeSelector v-model="selectedVolume" :volumes="customProduct.volumeOptions" />
-          </div>
-
-          <!-- Package Selection - Chỉ hiển thị cho custom product -->
-          <div
-            v-if="isCustomProduct && customProduct"
-            class="rounded-2xl border border-gray-200 p-4 shadow-sm sm:p-6"
-          >
-            <PackageSelector v-model="selectedPackage" :packages="customProduct.packageOptions" />
-          </div>
-
-          <!-- Thông báo cho combo/unit product -->
+          <!-- Non-Custom Product Notice -->
           <div
             v-if="!isCustomProduct"
-            class="rounded-2xl border border-yellow-200 bg-yellow-50 p-4 shadow-sm sm:p-6"
+            class="rounded-2xl border-2 border-amber-200 bg-gradient-to-br from-amber-50 to-yellow-50 p-6 shadow-lg"
           >
-            <p class="text-center text-sm text-yellow-800">
-              {{
-                product?.category === 'combo'
-                  ? '🎁 Sản phẩm combo có sẵn, chỉ cần chọn số lượng!'
-                  : '📦 Sản phẩm đơn lẻ có sẵn, chỉ cần chọn số lượng!'
-              }}
-            </p>
+            <div class="flex items-start gap-4">
+              <div
+                class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-amber-400 text-white"
+              >
+                <Package class="h-6 w-6" />
+              </div>
+              <div>
+                <h3 class="mb-1 font-bold text-amber-900">Sản phẩm có sẵn</h3>
+                <p class="text-sm text-amber-800">
+                  {{
+                    product?.category === 'combo'
+                      ? 'Combo đã được cấu hình sẵn với giá ưu đãi. Chỉ cần chọn số lượng và đặt hàng!'
+                      : 'Sản phẩm yến thô chất lượng cao, đã được đóng gói sẵn sàng giao hàng!'
+                  }}
+                </p>
+              </div>
+            </div>
           </div>
 
-          <div
-            class="fixed bottom-0 left-0 right-0 z-40 flex gap-2 border-t border-gray-200 bg-white p-4 shadow-lg sm:relative sm:gap-3 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none"
-          >
+          <!-- Action Buttons - Desktop -->
+          <div class="hidden gap-4 sm:flex">
             <PrimaryButton
-              type="submit"
               @click="addToCart"
-              variant="secondary"
-              class="flex flex-[1.5] items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-colors sm:rounded-2xl sm:px-6 sm:text-base"
+              variant="cta"
+              class="flex flex-1 items-center justify-center gap-2 rounded-2xl px-8 py-4 text-base font-bold transition-all hover:scale-105"
             >
-              <ShoppingCart class="h-4 w-4 inline-block sm:h-5 sm:w-5" />
-              Thêm vào giỏ hàng
+              <ShoppingCart class="h-5 w-5 inline-block mx-1" />
+              Thêm vào giỏ
             </PrimaryButton>
 
             <PrimaryButton
-              type="submit"
               @click="goToCheckout"
-              variant="cta"
-              class="flex flex-[1] items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-colors sm:flex-2 sm:rounded-2xl sm:px-6 sm:text-base"
+              variant="primary"
+              class="flex flex-1 items-center justify-center gap-2 rounded-2xl px-8 py-4 text-base font-bold shadow-lg shadow-yellow-500/30 transition-all hover:scale-105 hover:shadow-red-500/50"
             >
-              <ShoppingCart class="h-4 w-4 inline-block sm:h-5 sm:w-5" />
-              Mua ngay
+              <Sparkles class="h-5 w-5 inline-block mx-1" />
+              Mua Ngay
             </PrimaryButton>
           </div>
         </div>
       </div>
-
-      <!-- Spacer for mobile fixed buttons -->
-      <!-- <div class="h-20 sm:hidden"></div> -->
     </div>
+
+    <!-- Fixed Bottom Actions - Mobile -->
+    <div
+      class="fixed bottom-0 left-0 right-0 z-50 border-t border-gray-200 bg-white/95 p-4 shadow-2xl backdrop-blur-lg sm:hidden"
+    >
+      <div class="flex gap-3">
+        <PrimaryButton
+          @click="addToCart"
+          variant="cta"
+          class="flex flex-[1,5] items-center justify-center gap-2 rounded-2xl px-8 py-4 text-base font-bold transition-all hover:scale-105"
+        >
+          <ShoppingCart class="h-5 w-5 inline-block mx-1" />
+          Thêm vào giỏ
+        </PrimaryButton>
+
+        <PrimaryButton
+          @click="goToCheckout"
+          variant="primary"
+          class="flex flex-[1] items-center justify-center gap-2 rounded-2xl px-8 py-4 text-base font-bold shadow-lg shadow-yellow-500/30 transition-all hover:scale-105 hover:shadow-red-500/50"
+        >
+          <Sparkles class="h-5 w-5 inline-block mx-1" />
+          Mua Ngay
+        </PrimaryButton>
+      </div>
+    </div>
+
+    <!-- Mobile Bottom Spacer -->
+    <div class="h-24 sm:hidden"></div>
   </div>
 </template>
+
 <style scoped>
-/* Animation cho Layer 1: Phóng to từ nhỏ -> lớn */
-.animate-pop-in {
-  animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-@keyframes popIn {
-  0% {
-    opacity: 0;
-    /* Bắt đầu nhỏ xíu */
-    transform: translate(-50%, -50%) translateX(0px) scale(0.5);
-  }
-  100% {
-    opacity: 1;
-    /* Kết thúc ở kích thước thật (Logic transform sẽ được Vue ghi đè lại sau khi mount, 
-       nhưng animation này tạo cảm giác nảy lúc đầu) */
-  }
+.animate-spin {
+  animation: spin 1s linear infinite;
 }
 </style>
