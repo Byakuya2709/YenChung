@@ -11,15 +11,15 @@
 import dotenv from 'dotenv'
 dotenv.config()
 
-import { mockProducts } from '../mock/products.js'
+import { mockCustomProduct } from '../mock/products.js'
 import { seedProductsFromMock } from '../services/product.service.js'
 
 async function main() {
   console.log('🚀 Starting product seeding process...')
-  console.log(`📦 Found ${mockProducts.length} products in mock data\n`)
+  console.log(`📦 Found ${mockCustomProduct.length} products in mock data\n`)
 
   try {
-    await seedProductsFromMock(mockProducts)
+    await seedProductsFromMock(mockCustomProduct)
     console.log('\n✅ All products have been successfully seeded to Supabase!')
     console.log('🎉 You can now remove or comment out the seed script')
   } catch (error) {

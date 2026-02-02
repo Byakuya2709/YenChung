@@ -50,7 +50,7 @@ export async function createOrder(orderData: CreateOrderData): Promise<Order> {
 
   const { data: order, error: orderError } = await supabase
     .from('orders')
-    .insert(orderInsert)
+    .insert(orderInsert as any)
     .select()
     .single()
 
@@ -76,7 +76,7 @@ export async function createOrder(orderData: CreateOrderData): Promise<Order> {
     },
   }))
 
-  const { error: itemsError } = await supabase.from('order_items').insert(orderItems)
+  const { error: itemsError } = await supabase.from('order_items').insert(orderItems as any)
 
   if (itemsError) {
     console.error('Error creating order items:', itemsError)
@@ -143,7 +143,8 @@ export async function updateOrderStatus(
   orderId: string,
   status: 'pending' | 'confirmed' | 'shipping' | 'delivered' | 'cancelled',
 ): Promise<Order> {
-  const { data, error } = await supabase
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase as any)
     .from('orders')
     .update({ status, updated_at: new Date().toISOString() })
     .eq('id', orderId)

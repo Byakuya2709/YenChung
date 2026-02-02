@@ -5,14 +5,17 @@ export function useProductPrice(
   product: Ref<Product>,
   selectedType: Ref<string>,
   selectedWeight: Ref<string>,
-  quantity: Ref<number>
+  quantity: Ref<number>,
 ) {
   const currentType = computed<ProductType | undefined>(() => {
-    return product.value.types.find((t) => t.id === selectedType.value)
+    if (product.value.category !== 'custom') return undefined
+    return product.value.types.find((t: ProductType) => t.id === selectedType.value)
   })
 
   const currentWeight = computed<WeightOption | undefined>(() => {
-    return product.value.weightOptions.find((w) => w.id === selectedWeight.value)
+    if (product.value.category !== 'custom') return undefined
+    const type = product.value.types.find((t: ProductType) => t.id === selectedType.value)
+    return type?.weightOptions.find((w: WeightOption) => w.id === selectedWeight.value)
   })
 
   const basePrice = computed(() => {

@@ -276,10 +276,7 @@ async function handleSubmit() {
     console.error('Error creating order:', error)
     orderError.value = 'Đã xảy ra lỗi khi tạo đơn hàng. Vui lòng thử lại sau.'
   } finally {
-    isSubmitting.value = falseuter.push({
-      name: 'order-success',
-      params: { orderId: order.id },
-    })
+    isSubmitting.value = false
   }
 }
 </script>

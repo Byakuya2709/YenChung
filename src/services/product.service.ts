@@ -84,7 +84,11 @@ export async function getProductOptions(productId: string): Promise<ProductOptio
  * Thêm sản phẩm mới (admin function)
  */
 export async function createProduct(product: ProductInsert): Promise<Product> {
-  const { data, error } = await supabase.from('products').insert(product).select().single()
+  const { data, error } = await supabase
+    .from('products')
+    .insert(product as any)
+    .select()
+    .single()
 
   if (error) {
     console.error('Error creating product:', error)
@@ -100,7 +104,10 @@ export async function createProduct(product: ProductInsert): Promise<Product> {
 export async function createProductOptions(
   options: ProductOptionInsert[],
 ): Promise<ProductOption[]> {
-  const { data, error } = await supabase.from('product_options').insert(options).select()
+  const { data, error } = await supabase
+    .from('product_options')
+    .insert(options as any)
+    .select()
 
   if (error) {
     console.error('Error creating product options:', error)
@@ -130,7 +137,7 @@ export async function seedProductsFromMock(mockProducts: any[]): Promise<void> {
 
       const { data: insertedProduct, error: productError } = await supabase
         .from('products')
-        .upsert(product)
+        .upsert(product as any)
         .select()
         .single()
 
@@ -200,7 +207,7 @@ export async function seedProductsFromMock(mockProducts: any[]): Promise<void> {
         if (options.length > 0) {
           const { error: optionsError } = await supabase
             .from('product_options')
-            .upsert(options, { onConflict: 'product_id,option_type,value' })
+            .upsert(options as any, { onConflict: 'product_id,option_type,value' })
 
           if (optionsError) {
             console.error(`Error seeding options for ${mockProduct.id}:`, optionsError)
