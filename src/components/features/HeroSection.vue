@@ -75,7 +75,7 @@ function scrollToProducts() {
             </span>
             <span class="relative inline-block">
               <span
-                class="bg-gradient-to-r from-yellow-400 via-amber-400 to-orange-300 bg-clip-text text-transparent sm:text-4xl lg:text-5xl xl:text-6xl"
+                class="font-greatVibes tracking-wider bg-gradient-to-r from-yellow-400 via-amber-400 to-orange-300 bg-clip-text text-transparent sm:text-4xl lg:text-5xl xl:text-6xl"
               >
                 Chưng Nóng
               </span>
@@ -163,7 +163,7 @@ function scrollToProducts() {
             </button>
             <a
               href="/contact"
-              class="flex items-center justify-center gap-2 rounded-full border-2 border-gray-900 bg-white px-8 py-4 text-base font-bold text-gray-900 transition-all hover:bg-gray-900 hover:text-white sm:text-lg"
+              class="flex items-center justify-center gap-2 rounded-full bg-white px-8 py-4 text-base font-bold text-gray-900 transition-all hover:bg-gray-900 hover:text-white sm:text-lg"
             >
               Liên Hệ Tư Vấn
             </a>

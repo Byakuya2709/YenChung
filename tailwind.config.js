@@ -19,6 +19,29 @@ export default {
           light: '#FFD966',
         },
       },
+      fontFamily: {
+        // Sans / đọc nội dung
+        openSans: ['Open Sans', 'sans-serif'],
+        roboto: ['Roboto', 'sans-serif'],
+
+        // Serif / cổ điển
+        amethysta: ['Amethysta', 'serif'],
+        metamorphous: ['Metamorphous', 'serif'],
+
+        // Heading mạnh
+        anton: ['Anton', 'sans-serif'],
+
+        // Gothic / horror
+        grenzeGotisch: ['Grenze Gotisch', 'serif'],
+        medievalSharp: ['MedievalSharp', 'serif'],
+        megrim: ['Megrim', 'cursive'],
+
+        // Script / viết tay
+        greatVibes: ['Great Vibes', 'cursive'],
+        parisienne: ['Parisienne', 'cursive'],
+        lavishlyYours: ['Lavishly Yours', 'cursive'],
+        windSong: ['WindSong', 'cursive'],
+      },
       backgroundImage: {
         'pattern-red':
           "url('/bg-5.png')",
