@@ -12,7 +12,6 @@ const mobileMenuOpen = ref(false)
 const isScrolled = ref(false)
 
 const navigation = [
-  { name: 'Trang Chủ', href: '/' },
   { name: 'Sản Phẩm', href: '/#products' },
   { name: 'Giới Thiệu', href: '/#about' },
   { name: 'Liên Hệ', href: '/#contact' },
