@@ -79,42 +79,42 @@ function formatOrderMessage(order: OrderInfo): string {
   const discount = order.discount || 0
 
   const message = `
-🔔 *ĐƠN HÀNG MỚI* 🔔
+ *ĐƠN HÀNG MỚI* 
 ━━━━━━━━━━━━━━━━━━━━━━━━━
 
-📋 *Mã đơn hàng:* \`${order.orderId}\`
-📅 *Thời gian:* ${order.createdAt.toLocaleString('vi-VN', {
-    dateStyle: 'short',
-    timeStyle: 'short',
-  })}
+ *Mã đơn hàng:* \`${order.orderId}\`
+ *Thời gian:* ${order.createdAt.toLocaleString('vi-VN', {
+   dateStyle: 'short',
+   timeStyle: 'short',
+ })}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━
-👤 *THÔNG TIN KHÁCH HÀNG*
+ *THÔNG TIN KHÁCH HÀNG*
 ━━━━━━━━━━━━━━━━━━━━━━━━━
 
-👨‍💼 Họ tên: *${order.customerName}*
-📞 Điện thoại: *${order.customerPhone}*
-📍 Địa chỉ: 
+ Họ tên: *${order.customerName}*
+ Điện thoại: *${order.customerPhone}*
+ Địa chỉ: 
    ${order.customerAddress.split(',').join('\n   ')}
 ${order.customerNote ? `📝 Ghi chú: _${order.customerNote}_\n` : ''}
 ━━━━━━━━━━━━━━━━━━━━━━━━━
-📦 *CHI TIẾT SẢN PHẨM*
+ *CHI TIẾT SẢN PHẨM*
 ━━━━━━━━━━━━━━━━━━━━━━━━━
 
 ${itemsList}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━
-💰 *THANH TOÁN*
+ *THANH TOÁN*
 ━━━━━━━━━━━━━━━━━━━━━━━━━
 
    Tạm tính:          ${formatPrice(subtotal)}${shippingFee > 0 ? `\n   Phí vận chuyển:    ${formatPrice(shippingFee)}` : ''}${discount > 0 ? `\n   Giảm giá:          -${formatPrice(discount)}` : ''}
    ━━━━━━━━━━━━━━━━━━━
    *TỔNG CỘNG:         ${formatPrice(order.totalAmount)}*
 
-💵 Thanh toán: *COD (Tiền mặt)*
+ Thanh toán: *COD (Tiền mặt)*
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━
-✅ Vui lòng xác nhận và xử lý đơn hàng!
+ Vui lòng xác nhận và xử lý đơn hàng!
 `
 
   return message.trim()
@@ -129,7 +129,7 @@ export async function sendTelegramMessage(message: string, chatId?: string): Pro
 
   if (botToken === 'YOUR_BOT_TOKEN' || targetChatId === 'YOUR_CHAT_ID') {
     console.warn(
-      '⚠️ Telegram chưa được cấu hình. Vui lòng set VITE_TELEGRAM_BOT_TOKEN và VITE_TELEGRAM_CHAT_ID',
+      ' Telegram chưa được cấu hình. Vui lòng set VITE_TELEGRAM_BOT_TOKEN và VITE_TELEGRAM_CHAT_ID',
     )
     return false
   }
@@ -152,14 +152,14 @@ export async function sendTelegramMessage(message: string, chatId?: string): Pro
     const result = await response.json()
 
     if (result.ok) {
-      console.log('✅ Đã gửi thông báo Telegram thành công!')
+      console.log(' Đã gửi thông báo Telegram thành công!')
       return true
     } else {
-      console.error('❌ Lỗi gửi Telegram:', result.description)
+      console.error('Lỗi gửi Telegram:', result.description)
       return false
     }
   } catch (error) {
-    console.error('❌ Lỗi kết nối Telegram:', error)
+    console.error('Lỗi kết nối Telegram:', error)
     return false
   }
 }
@@ -188,30 +188,30 @@ interface ConsultationRequest {
  */
 function formatConsultationMessage(request: ConsultationRequest): string {
   const message = `
-💬 *YÊU CẦU TƯ VẤN MỚI* 💬
+*YÊU CẦU TƯ VẤN MỚI* 
 ━━━━━━━━━━━━━━━━━━━━━━━━━
 
-📅 *Thời gian:* ${request.createdAt.toLocaleString('vi-VN', {
+*Thời gian:* ${request.createdAt.toLocaleString('vi-VN', {
     dateStyle: 'short',
     timeStyle: 'short',
   })}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━
-👤 *THÔNG TIN KHÁCH HÀNG*
+ *THÔNG TIN KHÁCH HÀNG*
 ━━━━━━━━━━━━━━━━━━━━━━━━━
 
-👨‍💼 Họ tên: *${request.name}*
-📞 Điện thoại: *${request.phone}*${request.email ? `\n📧 Email: ${request.email}` : ''}
-📋 Chủ đề: *${request.subject}*
+Họ tên: *${request.name}*
+ Điện thoại: *${request.phone}*${request.email ? `\n📧 Email: ${request.email}` : ''}
+ Chủ đề: *${request.subject}*
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━
-💭 *NỘI DUNG*
+ *NỘI DUNG*
 ━━━━━━━━━━━━━━━━━━━━━━━━━
 
 ${request.message}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━
-✅ Vui lòng liên hệ lại khách hàng sớm nhất!
+ Vui lòng liên hệ lại khách hàng sớm nhất!
 `
 
   return message.trim()

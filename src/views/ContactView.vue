@@ -4,10 +4,25 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { sendConsultationRequest } from '@/services/telegram'
-import { Phone, Mail, MapPin, Send, CheckCircle, Clock, MessageCircle, User } from 'lucide-vue-next'
+import {
+  Phone,
+  Mail,
+  MapPin,
+  Send,
+  CheckCircle,
+  Clock,
+  MessageCircle,
+  User,
+  Facebook,
+} from 'lucide-vue-next'
 
+import PrimaryButton from '@/components/common/PrimaryButton.vue'
 const router = useRouter()
 
+const socialLinks = [
+  { icon: Facebook, href: '#', label: 'Facebook' },
+  { icon: MessageCircle, href: '#', label: 'Zalo' },
+]
 // Form state
 const formData = ref({
   name: '',
@@ -154,7 +169,7 @@ const subjects = ['Tư vấn sản phẩm', 'Hỏi giá', 'Vận chuyển', 'H�
           <div class="rounded-2xl bg-white p-6 shadow-xl ring-1 ring-gray-900/5">
             <div class="mb-6 flex items-center gap-4">
               <div
-                class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-red-500 to-orange-500 text-white"
+                class="flex h-12 w-12 items-center justify-center rounded-xl bg-primary-500 text-white"
               >
                 <Phone class="h-6 w-6" />
               </div>
@@ -163,12 +178,11 @@ const subjects = ['Tư vấn sản phẩm', 'Hỏi giá', 'Vận chuyển', 'H�
                 <p class="text-sm text-gray-600">Gọi ngay để được hỗ trợ</p>
               </div>
             </div>
-            <a
-              href="tel:0123456789"
-              class="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-red-600 to-orange-500 px-6 py-3 font-bold text-white shadow-lg transition-all hover:scale-105"
-            >
-              <Phone class="h-5 w-5" />
-              0123 456 789
+            <a href="tel:0123456789">
+              <PrimaryButton class="w-full justify-center">
+                <Phone class="h-5 w-5 inline-block" />
+                0123 456 789
+              </PrimaryButton>
             </a>
           </div>
 
@@ -184,11 +198,11 @@ const subjects = ['Tư vấn sản phẩm', 'Hỏi giá', 'Vận chuyển', 'H�
                 <p class="text-sm text-gray-600">Gửi email cho chúng tôi</p>
               </div>
             </div>
-            <a
-              href="mailto:contact@yensao.vn"
-              class="block truncate rounded-xl border-2 border-gray-900 bg-white px-6 py-3 text-center font-bold text-gray-900 transition-all hover:bg-gray-900 hover:text-white"
-            >
-              contact@yensao.vn
+            <a href="mailto:contact@yensao.vn">
+              <PrimaryButton variant="secondary" class="w-full justify-center">
+                <Phone class="h-5 w-5 inline-block mx-2 text-black" />
+                <span class="text-black">contact@yensao.vn</span>
+              </PrimaryButton>
             </a>
           </div>
 
@@ -207,6 +221,17 @@ const subjects = ['Tư vấn sản phẩm', 'Hỏi giá', 'Vận chuyển', 'H�
             <p class="text-sm leading-relaxed text-gray-700">
               Ấp 7, Xã Cái Ngang, Tam Bình, Vĩnh Long
             </p>
+            <div class="mt-4 flex items-center gap-3">
+              <a
+                v-for="social in socialLinks"
+                :key="social.label"
+                :href="social.href"
+                :aria-label="social.label"
+                class="flex h-10 w-10 items-center justify-center rounded-full bg-primary transition-colors hover:bg-primary-600"
+              >
+                <component :is="social.icon" class="h-5 w-5 text-white" />
+              </a>
+            </div>
           </div>
 
           <!-- Working Hours -->
@@ -350,7 +375,7 @@ const subjects = ['Tư vấn sản phẩm', 'Hỏi giá', 'Vận chuyển', 'H�
               <button
                 type="submit"
                 :disabled="!isFormValid || isSubmitting"
-                class="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-red-600 to-orange-500 px-8 py-4 text-base font-bold text-white shadow-lg shadow-red-500/30 transition-all hover:scale-105 hover:shadow-red-500/50 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
+                class="flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-red-600 to-orange-500 px-8 py-4 text-base font-bold text-white shadow-lg shadow-red-500/30 transition-all hover:scale-105 hover:shadow-red-500/50 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
               >
                 <Send class="h-5 w-5" :class="{ 'animate-pulse': isSubmitting }" />
                 {{ isSubmitting ? 'Đang gửi...' : 'Gửi yêu cầu' }}
